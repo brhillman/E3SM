@@ -1184,6 +1184,27 @@ flags should be captured within MPAS CMake files.
   <SUPPORTS_CXX>TRUE</SUPPORTS_CXX>
 </compiler>
 
+<compiler MACH="onyx" COMPILER="intel">
+  <CONFIG_ARGS>
+    <base> --host=Linux </base>
+  </CONFIG_ARGS>
+  <FFLAGS>
+    <base> -convert big_endian -assume byterecl -ftz -traceback -assume realloc_lhs -fp-model consistent -fimf-use-svml </base>
+    <append DEBUG="FALSE"> -O2 -debug minimal -qno-opt-dynamic-align </append>
+  </FFLAGS>
+  <PETSC_PATH>$ENV{PETSC_DIR}</PETSC_PATH>
+  <SLIBS>
+    <append> -Wl,--as-needed,-L$ENV{NETCDF_DIR}/lib -lnetcdf </append>
+    <append> -mkl -lpthread </append>
+  </SLIBS>
+  <CXXFLAGS>
+    <base> -std=c++14 -fp-model consistent </base>
+    <append compile_threaded="TRUE"> -qopenmp </append>
+    <append DEBUG="TRUE"> -O0 -g </append>
+    <append DEBUG="FALSE"> -O2 </append>
+  </CXXFLAGS>
+</compiler>
+
 <compiler MACH="cori-haswell" COMPILER="intel">
   <ALBANY_PATH>/global/cfs/cdirs/e3sm/software/albany-trilinos/albany-install-2020-08-07</ALBANY_PATH>
   <CONFIG_ARGS>
