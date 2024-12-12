@@ -11,7 +11,7 @@ template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
 ::cloud_water_conservation(const Spack& qc, const Scalar dt,
-  Spack& qc2qr_autoconv_tend, Spack& qc2qr_accret_tend, Spack &qc2qi_collect_tend, Spack& qc2qi_hetero_freeze_tend, 
+  Spack& qc2qr_autoconv_tend, Spack& qc2qr_accret_tend, Spack &qc2qi_collect_tend, Spack& qc2qi_hetero_freeze_tend,
   Spack& qc2qr_ice_shed_tend, Spack& qc2qi_berg_tend, Spack& qi2qv_sublim_tend, Spack& qv2qi_vapdep_tend,
   const Smask& context)
 {
@@ -52,7 +52,7 @@ template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
 ::rain_water_conservation(
-  const Spack& qr, const Spack& qc2qr_autoconv_tend, const Spack& qc2qr_accret_tend, 
+  const Spack& qr, const Spack& qc2qr_autoconv_tend, const Spack& qc2qr_accret_tend,
   const Spack& qi2qr_melt_tend, const Spack& qc2qr_ice_shed_tend, const Scalar dt,
   Spack& qr2qv_evap_tend, Spack& qr2qi_collect_tend, Spack& qr2qi_immers_freeze_tend,
   const Smask& context)
@@ -76,7 +76,7 @@ template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
 ::ice_water_conservation(
-  const Spack& qi,const Spack& qv2qi_vapdep_tend,const Spack& qv2qi_nucleat_tend,const Spack& qc2qi_berg_tend, 
+  const Spack& qi,const Spack& qv2qi_vapdep_tend,const Spack& qv2qi_nucleat_tend,const Spack& qc2qi_berg_tend,
   const Spack &qr2qi_collect_tend,const Spack &qc2qi_collect_tend,const Spack& qr2qi_immers_freeze_tend,
   const Spack& qc2qi_hetero_freeze_tend,const Scalar dt,
   Spack& qi2qv_sublim_tend, Spack& qi2qr_melt_tend,

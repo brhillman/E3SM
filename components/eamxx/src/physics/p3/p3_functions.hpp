@@ -218,6 +218,20 @@ struct Functions
     P3DiagnosticOutputs() = default;
     // qitend due to deposition/sublimation
     view_2d<Spack> qv2qi_depos_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qv2qi_nucleat_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qv2qi_vapdep_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qc2qi_berg_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qc2qi_hetero_freeze_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qc2qi_collect_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qr2qi_collect_tend;
+    // qitend due to nucleation?
+    view_2d<Spack> qr2qi_immers_freeze_tend;
     // Precipitation rate, liquid [m s-1]
     view_1d<Scalar> precip_liq_surf;
     // Precipitation rate, solid [m s-1]
@@ -991,7 +1005,7 @@ struct Functions
     const uview_1d<Spack>& inv_dz,
     Scalar& precip_liq_surf,
     Scalar& precip_ice_surf,
-    view_1d_ptr_array<Spack, 36>& zero_init);
+    view_1d_ptr_array<Spack, 43>& zero_init);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
   static void p3_main_init_disp(
@@ -1012,7 +1026,10 @@ struct Functions
     const uview_2d<Spack>& bm_incld, const uview_2d<Spack>& inv_rho, const uview_2d<Spack>& prec, const uview_2d<Spack>& rho, const uview_2d<Spack>& rhofacr,
     const uview_2d<Spack>& rhofaci, const uview_2d<Spack>& acn, const uview_2d<Spack>& qv_sat_l, const uview_2d<Spack>& qv_sat_i, const uview_2d<Spack>& sup,
     const uview_2d<Spack>& qv_supersat_i, const uview_2d<Spack>& qtend_ignore, const uview_2d<Spack>& ntend_ignore, const uview_2d<Spack>& mu_c,
-    const uview_2d<Spack>& lamc, const uview_2d<Spack>& rho_qi, const uview_2d<Spack>& qv2qi_depos_tend, const uview_2d<Spack>& precip_total_tend,
+    const uview_2d<Spack>& lamc, const uview_2d<Spack>& rho_qi, const uview_2d<Spack>& qv2qi_depos_tend, const uview_2d<Spack>& qv2qi_nucleat_tend, const uview_2d<Spack>& qv2qi_vapdep_tend,
+    const uview_2d<Spack>& qc2qi_berg_tend, const uview_2d<Spack>& qc2qi_hetero_freeze_tend, const uview_2d<Spack>& qc2qi_collect_tend,
+    const uview_2d<Spack>& qr2qi_collect_tend, const uview_2d<Spack>& qr2qi_immers_freeze_tend,
+    const uview_2d<Spack>& precip_total_tend,
     const uview_2d<Spack>& nevapr, const uview_2d<Spack>& precip_liq_flux, const uview_2d<Spack>& precip_ice_flux);
 #endif
 
@@ -1179,6 +1196,13 @@ struct Functions
     const uview_1d<Spack>& lamr,
     const uview_1d<Spack>& logn0r,
     const uview_1d<Spack>& qv2qi_depos_tend,
+    const uview_1d<Spack>& qv2qi_nucleat_tend,
+    const uview_1d<Spack>& qv2qi_vapdep_tend,
+    const uview_1d<Spack>& qc2qi_berg_tend,
+    const uview_1d<Spack>& qc2qi_hetero_freeze_tend,
+    const uview_1d<Spack>& qc2qi_collect_tend,
+    const uview_1d<Spack>& qr2qi_collect_tend,
+    const uview_1d<Spack>& qr2qi_immers_freeze_tend,
     const uview_1d<Spack>& precip_total_tend,
     const uview_1d<Spack>& nevapr,
     const uview_1d<Spack>& qr_evap_tend,
@@ -1257,6 +1281,13 @@ struct Functions
     const uview_2d<Spack>& lamr,
     const uview_2d<Spack>& logn0r,
     const uview_2d<Spack>& qv2qi_depos_tend,
+    const uview_2d<Spack>& qv2qi_nucleat_tend,
+    const uview_2d<Spack>& qv2qi_vapdep_tend,
+    const uview_2d<Spack>& qc2qi_berg_tend,
+    const uview_2d<Spack>& qc2qi_hetero_freeze_tend,
+    const uview_2d<Spack>& qc2qi_collect_tend,
+    const uview_2d<Spack>& qr2qi_collect_tend,
+    const uview_2d<Spack>& qr2qi_immers_freeze_tend,
     const uview_2d<Spack>& precip_total_tend,
     const uview_2d<Spack>& nevapr,
     const uview_2d<Spack>& qr_evap_tend,

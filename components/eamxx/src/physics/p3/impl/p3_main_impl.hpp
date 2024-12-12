@@ -42,7 +42,7 @@ void Functions<S,D>
   const uview_1d<Spack>& inv_dz,
   Scalar& precip_liq_surf,
   Scalar& precip_ice_surf,
-  view_1d_ptr_array<Spack, 36>& zero_init)
+  view_1d_ptr_array<Spack, 43>& zero_init)
 {
   precip_liq_surf = 0;
   precip_ice_surf = 0;
@@ -190,6 +190,13 @@ Int Functions<S,D>
     const auto odiag_eff_radius_qi = ekat::subview(diagnostic_outputs.diag_eff_radius_qi, i);
     const auto odiag_eff_radius_qr = ekat::subview(diagnostic_outputs.diag_eff_radius_qr, i);
     const auto oqv2qi_depos_tend   = ekat::subview(diagnostic_outputs.qv2qi_depos_tend, i);
+    const auto oqv2qi_nucleat_tend = ekat::subview(diagnostic_outputs.qv2qi_nucleat_tend, i);
+    const auto oqv2qi_vapdep_tend  = ekat::subview(diagnostic_outputs.qv2qi_vapdep_tend, i);
+    const auto oqc2qi_berg_tend    = ekat::subview(diagnostic_outputs.qc2qi_berg_tend, i);
+    const auto oqc2qi_hetero_freeze_tend = ekat::subview(diagnostic_outputs.qc2qi_hetero_freeze_tend, i);
+    const auto oqc2qi_collect_tend  = ekat::subview(diagnostic_outputs.qc2qi_collect_tend, i);
+    const auto oqr2qi_collect_tend  = ekat::subview(diagnostic_outputs.qr2qi_collect_tend, i);
+    const auto oqr2qi_immers_freeze_tend = ekat::subview(diagnostic_outputs.qr2qi_immers_freeze_tend, i);
     const auto orho_qi             = ekat::subview(diagnostic_outputs.rho_qi, i);
     const auto oprecip_liq_flux    = ekat::subview(diagnostic_outputs.precip_liq_flux, i);
     const auto oprecip_ice_flux    = ekat::subview(diagnostic_outputs.precip_ice_flux, i);
@@ -207,13 +214,15 @@ Int Functions<S,D>
     bool &nucleationPossible  = bools(0);
     bool &hydrometeorsPresent = bools(1);
 
-    view_1d_ptr_array<Spack, 36> zero_init = {
+    view_1d_ptr_array<Spack, 43> zero_init = {
       &mu_r, &lamr, &logn0r, &nu, &cdist, &cdist1, &cdistr,
       &qc_incld, &qr_incld, &qi_incld, &qm_incld,
       &nc_incld, &nr_incld, &ni_incld, &bm_incld,
       &inv_rho, &prec, &rho, &rhofacr, &rhofaci, &acn, &qv_sat_l, &qv_sat_i, &sup, &qv_supersat_i,
       &tmparr1, &qtend_ignore, &ntend_ignore,
-      &mu_c, &lamc, &orho_qi, &oqv2qi_depos_tend, &oprecip_total_tend, &onevapr, &oprecip_liq_flux, &oprecip_ice_flux
+      &mu_c, &lamc, &orho_qi, &oqv2qi_depos_tend,
+      &oqv2qi_nucleat_tend, &oqv2qi_vapdep_tend, &oqc2qi_berg_tend, &oqc2qi_hetero_freeze_tend, &oqc2qi_collect_tend, &oqr2qi_collect_tend, &oqr2qi_immers_freeze_tend,
+      &oprecip_total_tend, &onevapr, &oprecip_liq_flux, &oprecip_ice_flux
     };
 
     // initialize
@@ -249,7 +258,9 @@ Int Functions<S,D>
       oqv, oth, oqc, onc, oqr, onr, oqi, oni, oqm, obm,
       qc_incld, qr_incld, qi_incld, qm_incld, nc_incld,
       nr_incld, ni_incld, bm_incld, mu_c, nu, lamc, cdist, cdist1, cdistr,
-      mu_r, lamr, logn0r, oqv2qi_depos_tend, oprecip_total_tend, onevapr, qr_evap_tend,
+      mu_r, lamr, logn0r, oqv2qi_depos_tend, oqv2qi_nucleat_tend,
+      oqv2qi_vapdep_tend, oqc2qi_berg_tend, oqc2qi_hetero_freeze_tend, oqc2qi_collect_tend, oqr2qi_collect_tend, oqr2qi_immers_freeze_tend,
+      oprecip_total_tend, onevapr, qr_evap_tend,
       ovap_liq_exchange, ovap_ice_exchange, oliq_ice_exchange,
       pratot, prctot, hydrometeorsPresent, nk, runtime_options);
 

@@ -30,7 +30,16 @@ void Functions<Real,DefaultDevice>
   const uview_2d<Spack>& bm_incld, const uview_2d<Spack>& inv_rho, const uview_2d<Spack>& prec, const  uview_2d<Spack>& rho, const uview_2d<Spack>& rhofacr,
   const uview_2d<Spack>& rhofaci, const uview_2d<Spack>& acn, const uview_2d<Spack>& qv_sat_l, const uview_2d<Spack>& qv_sat_i, const uview_2d<Spack>& sup,
   const uview_2d<Spack>& qv_supersat_i, const uview_2d<Spack>& qtend_ignore, const uview_2d<Spack>& ntend_ignore, const uview_2d<Spack>& mu_c,
-  const uview_2d<Spack>& lamc, const uview_2d<Spack>& rho_qi, const uview_2d<Spack>& qv2qi_depos_tend, const uview_2d<Spack>& precip_total_tend,
+  const uview_2d<Spack>& lamc, const uview_2d<Spack>& rho_qi,
+  const uview_2d<Spack>& qv2qi_depos_tend,
+  const uview_2d<Spack>& qv2qi_nucleat_tend,
+  const uview_2d<Spack>& qv2qi_vapdep_tend,
+  const uview_2d<Spack>& qc2qi_berg_tend,
+  const uview_2d<Spack>& qc2qi_hetero_freeze_tend,
+  const uview_2d<Spack>& qc2qi_collect_tend,
+  const uview_2d<Spack>& qr2qi_collect_tend,
+  const uview_2d<Spack>& qr2qi_immers_freeze_tend,
+  const uview_2d<Spack>& precip_total_tend,
   const uview_2d<Spack>& nevapr, const uview_2d<Spack>& precip_liq_flux, const uview_2d<Spack>& precip_ice_flux)
 {
   using ExeSpace = typename KT::ExeSpace;
@@ -89,6 +98,13 @@ void Functions<Real,DefaultDevice>
         lamc(i,k)               = 0.;
         rho_qi(i,k)             = 0.;
         qv2qi_depos_tend(i,k)   = 0.;
+        qv2qi_nucleat_tend(i,k) = 0.;
+        qv2qi_vapdep_tend(i,k) = 0.;
+        qc2qi_berg_tend(i,k) = 0.;
+        qc2qi_hetero_freeze_tend(i,k) = 0.;
+        qc2qi_collect_tend(i,k) = 0.;
+        qr2qi_collect_tend(i,k) = 0.;
+        qr2qi_immers_freeze_tend(i,k) = 0.;
         precip_total_tend(i,k)  = 0.;
         nevapr(i,k)             = 0.;
         precip_liq_flux(i,k)    = 0.;
@@ -156,6 +172,13 @@ Int Functions<Real,DefaultDevice>
   auto diag_eff_radius_qi      = diagnostic_outputs.diag_eff_radius_qi;
   auto diag_eff_radius_qr      = diagnostic_outputs.diag_eff_radius_qr;
   auto qv2qi_depos_tend        = diagnostic_outputs.qv2qi_depos_tend;
+  auto qv2qi_nucleat_tend      = diagnostic_outputs.qv2qi_nucleat_tend;
+  auto qv2qi_vapdep_tend      = diagnostic_outputs.qv2qi_vapdep_tend;
+  auto qc2qi_berg_tend      = diagnostic_outputs.qc2qi_berg_tend;
+  auto qc2qi_hetero_freeze_tend      = diagnostic_outputs.qc2qi_hetero_freeze_tend;
+  auto qc2qi_collect_tend      = diagnostic_outputs.qc2qi_collect_tend;
+  auto qr2qi_collect_tend      = diagnostic_outputs.qr2qi_collect_tend;
+  auto qr2qi_immers_freeze_tend      = diagnostic_outputs.qr2qi_immers_freeze_tend;
   auto rho_qi                  = diagnostic_outputs.rho_qi;
   auto precip_liq_flux         = diagnostic_outputs.precip_liq_flux;
   auto precip_ice_flux         = diagnostic_outputs.precip_ice_flux;
@@ -235,7 +258,11 @@ Int Functions<Real,DefaultDevice>
       mu_r, lamr, logn0r, nu, cdist, cdist1, cdistr,
       qc_incld, qr_incld, qi_incld, qm_incld, nc_incld, nr_incld, ni_incld, bm_incld,
       inv_rho, prec, rho, rhofacr, rhofaci, acn, qv_sat_l, qv_sat_i, sup, qv_supersat_i,
-      qtend_ignore, ntend_ignore, mu_c, lamc, rho_qi, qv2qi_depos_tend, precip_total_tend,
+      qtend_ignore, ntend_ignore, mu_c, lamc, rho_qi, qv2qi_depos_tend,
+      qv2qi_nucleat_tend, qv2qi_vapdep_tend,
+      qc2qi_berg_tend, qc2qi_hetero_freeze_tend, qc2qi_collect_tend,
+      qr2qi_collect_tend, qr2qi_immers_freeze_tend,
+      precip_total_tend,
       nevapr, precip_liq_flux, precip_ice_flux);
 
   p3_main_part1_disp(
@@ -258,7 +285,11 @@ Int Functions<Real,DefaultDevice>
       cld_frac_l, cld_frac_r, qv_prev, t_prev, T_atm, rho, inv_rho, qv_sat_l, qv_sat_i, qv_supersat_i, rhofacr, rhofaci, acn,
       qv, th, qc, nc, qr, nr, qi, ni, qm, bm, qc_incld, qr_incld, qi_incld, qm_incld, nc_incld,
       nr_incld, ni_incld, bm_incld, mu_c, nu, lamc, cdist, cdist1, cdistr,
-      mu_r, lamr, logn0r, qv2qi_depos_tend, precip_total_tend, nevapr, qr_evap_tend,
+      mu_r, lamr, logn0r,
+      qv2qi_depos_tend, qv2qi_nucleat_tend, qv2qi_vapdep_tend,
+      qc2qi_berg_tend, qc2qi_hetero_freeze_tend, qc2qi_collect_tend,
+      qr2qi_collect_tend, qr2qi_immers_freeze_tend,
+      precip_total_tend, nevapr, qr_evap_tend,
       vap_liq_exchange, vap_ice_exchange, liq_ice_exchange,
       pratot, prctot, nucleationPossible, hydrometeorsPresent, runtime_options);
 
