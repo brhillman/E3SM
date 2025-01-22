@@ -624,8 +624,8 @@ be lost if SCREAM_HACK_XML is not enabled.
     <bm                >0.0</bm>
     <ni_activated      >0.0</ni_activated>
     <nc_nuceat_tend    >0.0</nc_nuceat_tend>
-    <buoyant_convective_updraft_tracer>0.0</buoyant_convective_updraft_tracer>
-    <convective_nucleation_tracer>0.0</convective_nucleation_tracer>
+    <convective_updraft_tracer>0.0</convective_updraft_tracer>
+    <ice_nucleation_tracer>0.0</ice_nucleation_tracer>
     <!-- SHOC internally inits TKE; just set to 0 here to signal it's not in the IC file -->
     <tke               >0.0</tke>
     <!-- Note: these should be provided by surface models, but we init here to keep AD from reading from file -->

@@ -211,6 +211,8 @@ struct Functions
     view_2d<const Spack> qv_prev;
     // T from previous step [K]
     view_2d<const Spack> t_prev;
+    // Omega [Pa/s]
+    view_2d<const Spack> omega;
   };
 
   // This struct stores diagnostic outputs computed by P3.
@@ -252,6 +254,10 @@ struct Functions
     view_2d<Spack> precip_total_tend;
     // Evaporation of total precipitation (rain + snow) [kg/kg/s]
     view_2d<Spack> nevapr;
+    // Time since convective updraft [s]
+    view_2d<Spack> convective_updraft_tracer;
+    // Time since convective nucleation [s]
+    view_2d<Spack> ice_nucleation_tracer;
   };
 
   // This struct stores time stepping and grid-index-related information.

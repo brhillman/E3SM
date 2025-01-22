@@ -80,8 +80,21 @@ void P3Microphysics::set_grids(const std::shared_ptr<const GridsManager> grids_m
   add_tracer<Updated>("bm", m_grid, 1/kg,  ps);
 
   // Convective tracers
-  add_tracer<Updated>("buoyant_convective_updraft_tracer", m_grid, s, ps);
-  add_tracer<Updated>("convective_nucleation_tracer", m_grid, s, ps);
+  add_tracer<Updated>("convective_updraft_tracer", m_grid, s, ps);
+  add_tracer<Updated>("ice_nucleation_tracer", m_grid, s, ps);
+
+  // Nucleation tendencies
+  add_field<Computed>("qv2qi_depos_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qv2qi_nucleat_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qv2qi_vapdep_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qc2qi_berg_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qc2qi_hetero_freeze_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qc2qi_collect_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qr2qi_collect_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+  add_field<Computed>("qr2qi_immers_freeze_tend", scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
+
+  // Needed for convective tracer computation
+  add_field<Required>("omega", scalar3d_layout_mid, Pa/s, grid_name, ps);
 
   // Diagnostic Inputs: (only the X_prev fields are both input and output, all others are just inputs)
   add_field<Required>("nc_nuceat_tend",     scalar3d_layout_mid, 1/(kg*s), grid_name, ps);
@@ -320,6 +333,7 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
   diag_inputs.cld_frac_r      = p3_preproc.cld_frac_r;
   diag_inputs.dz              = p3_preproc.dz;
   diag_inputs.inv_exner       = p3_preproc.inv_exner;
+  auto omega           = get_field_in("omega").get_view<const Pack**>();
   // --Diagnostic Outputs
   diag_outputs.diag_eff_radius_qc = get_field_out("eff_radius_qc").get_view<Pack**>();
   diag_outputs.diag_eff_radius_qi = get_field_out("eff_radius_qi").get_view<Pack**>();
@@ -329,17 +343,19 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
 
   diag_outputs.precip_liq_surf  = m_buffer.precip_liq_surf_flux;
   diag_outputs.precip_ice_surf  = m_buffer.precip_ice_surf_flux;
-  diag_outputs.qv2qi_depos_tend = m_buffer.qv2qi_depos_tend;
-  diag_outputs.qv2qi_nucleat_tend = m_buffer.qv2qi_nucleat_tend;
-  diag_outputs.qv2qi_vapdep_tend = m_buffer.qv2qi_vapdep_tend;
-  diag_outputs.qc2qi_berg_tend = m_buffer.qc2qi_berg_tend;
-  diag_outputs.qc2qi_hetero_freeze_tend = m_buffer.qc2qi_hetero_freeze_tend;
-  diag_outputs.qc2qi_collect_tend = m_buffer.qc2qi_collect_tend;
-  diag_outputs.qr2qi_collect_tend = m_buffer.qr2qi_collect_tend;
-  diag_outputs.qr2qi_immers_freeze_tend = m_buffer.qr2qi_immers_freeze_tend;
+  diag_outputs.qv2qi_depos_tend         = get_field_out("qv2qi_depos_tend").get_view<Pack**>(); //m_buffer.qv2qi_depos_tend;
+  diag_outputs.qv2qi_nucleat_tend       = get_field_out("qv2qi_nucleat_tend").get_view<Pack**>(); //m_buffer.qv2qi_nucleat_tend;
+  diag_outputs.qv2qi_vapdep_tend        = get_field_out("qv2qi_vapdep_tend").get_view<Pack**>(); //m_buffer.qv2qi_vapdep_tend;
+  diag_outputs.qc2qi_berg_tend          = get_field_out("qc2qi_berg_tend").get_view<Pack**>(); //m_buffer.qc2qi_berg_tend;
+  diag_outputs.qc2qi_hetero_freeze_tend = get_field_out("qc2qi_hetero_freeze_tend").get_view<Pack**>(); //m_buffer.qc2qi_hetero_freeze_tend;
+  diag_outputs.qc2qi_collect_tend       = get_field_out("qc2qi_collect_tend").get_view<Pack**>(); //m_buffer.qc2qi_collect_tend;
+  diag_outputs.qr2qi_collect_tend       = get_field_out("qr2qi_collect_tend").get_view<Pack**>(); //m_buffer.qr2qi_collect_tend;
+  diag_outputs.qr2qi_immers_freeze_tend = get_field_out("qr2qi_immers_freeze_tend").get_view<Pack**>(); //m_buffer.qr2qi_immers_freeze_tend;
   diag_outputs.rho_qi           = m_buffer.rho_qi;
   diag_outputs.precip_liq_flux  = m_buffer.precip_liq_flux;
   diag_outputs.precip_ice_flux  = m_buffer.precip_ice_flux;
+  diag_outputs.convective_updraft_tracer = get_field_out("convective_updraft_tracer").get_view<Pack**>();
+  diag_outputs.ice_nucleation_tracer = get_field_out("ice_nucleation_tracer").get_view<Pack**>();
   // -- Infrastructure, what is left to assign
   infrastructure.col_location = m_buffer.col_location; // TODO: Initialize this here and now when P3 has access to lat/lon for each column.
   // --History Only
@@ -414,6 +430,8 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
                             prog_state.qi, prog_state.qm, prog_state.ni,prog_state.bm,qv_prev,
                             diag_outputs.diag_eff_radius_qc,diag_outputs.diag_eff_radius_qi,
                             diag_outputs.diag_eff_radius_qr,
+                            omega, diag_outputs.qv2qi_nucleat_tend,
+                            diag_outputs.convective_updraft_tracer, diag_outputs.ice_nucleation_tracer,
                             diag_outputs.precip_liq_surf,diag_outputs.precip_ice_surf,
                             precip_liq_surf_mass,precip_ice_surf_mass);
 

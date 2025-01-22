@@ -240,6 +240,47 @@ public:
         diag_eff_radius_qc(icol,ipack) *= 1e6;
         diag_eff_radius_qi(icol,ipack) *= 1e6;
         diag_eff_radius_qr(icol,ipack) *= 1e6;
+
+        // Compute convective (cloudy) updraft tracer. This tracer is initialized to 1 when a cloudy
+        // updraft is encountered, and then decays with an e-folding timescale of 1/bcu_scaling outside
+        // of cloudy convective updrafts. This allows estimating time since cloudy updraft for air
+        // parcels in post-processing by taking -ln(convect_updraft_tracer).
+        //
+        // Approximation for vertical velocity using ideal gas law and hydrostatic approximation:
+        // From Sami Turbeville implementation in SCREAMv0:
+        //     w = -omega / rho / g = -omega / pmid * rair * Tmid * 0.102; 
+        //
+        // from shoc: 
+        //     dz(i,k) = PF::calculate_dz(pseudo_density(i,k), p_mid(i,k), T_mid(i,k), qv(i,k));
+        //     rrho(i,k) = inv_ggr*(pseudo_density(i,k)/dz(i,k));
+        //     wm_zt = -omega(icol,ipack) / (rrho(icol,ipack) * ggr);
+        //
+        // It may also be better to just use an omega threshold to determine updraft, but vertical velocity
+        // seems to be more commonly used in the literature and expertise related to the use of this
+        // tracer to identify cloudy updrafts in the upper troposphere for studying cirrus formation, so
+        // we use this for the time being.
+        const Real bcu_scaling = 1.0 / 3600.0;
+        Spack w = -omega(icol,ipack) / pmid(icol,ipack) * PC::Rair * T_atm(icol,ipack) / PC::gravit;
+        //const Smask in_updraft = (omega(icol,ipack) < -1.0 && ((qv(icol,ipack) + qi(icol,ipack)) > 1e-5));
+        const Smask in_updraft = (w > 1.0 && ((qv(icol,ipack) + qi(icol,ipack)) > 1e-5));  // originally < -0.1 Pa/s?
+        convective_updraft_tracer(icol,ipack).set( in_updraft, 1);
+        convective_updraft_tracer(icol,ipack).set(!in_updraft, convective_updraft_tracer(icol,ipack) * (1 - bcu_scaling * m_dt));
+
+        // Compute convective nucleation tracer. This tracer is initialized to 1 when ice nucleation
+        // is encountered, and then decays with an e-folding timescale of 1/nuc_scaling outside of
+        // nucleation events. We might consider alternative nucleation tendencies using this same pattern.
+        // E.g., currently this tracer is using qv2qi_nucleat_tend, which should be the total ice
+        // nucleation tendency due to all freezing processes, but we could also separately consider the
+        // nucleation due to vapor deposition, immersion freezing, etc. As with the convective updraft
+        // tracer, the point of this tracer is to be able to estimate time since nucleation in post-processing
+        // by evaluating -ln(ice_nucleation_tracer). As implemented, maybe we should just call this
+        // an ice_nucleation_tracer, since there is no requirement that a cell is in a convective updraft in
+        // this case. We should rename this.
+        const Real nuc_scaling = 1.0 / 3600.0; //1.0 / 3600.0;
+        const Smask new_nucleation = (qv2qi_nucleat_tend(icol,ipack) > 1e-15);
+        ice_nucleation_tracer(icol,ipack).set( new_nucleation, 1);
+        ice_nucleation_tracer(icol,ipack).set(!new_nucleation, ice_nucleation_tracer(icol,ipack) * (1 - nuc_scaling * m_dt));
+
       } // for ipack
 
       // Microphysics can be subcycled together during a single physics timestep,
@@ -292,6 +333,10 @@ public:
     view_1d       water_flux;
     view_1d       ice_flux;
     view_1d       heat_flux;
+    view_2d_const omega;
+    view_2d       convective_updraft_tracer;
+    view_2d       ice_nucleation_tracer;
+    view_2d       qv2qi_nucleat_tend;
 
     void set_variables(const int ncol, const int npack,
                     const view_2d& th_atm_, const view_2d_const& pmid_, const view_2d_const& pmid_dry_,
@@ -301,6 +346,8 @@ public:
                     const view_2d& qi_, const view_2d& qm_, const view_2d& ni_, const view_2d& bm_,
                     const view_2d& qv_prev_, const view_2d& diag_eff_radius_qc_,
                     const view_2d& diag_eff_radius_qi_, const view_2d& diag_eff_radius_qr_,
+                    const view_2d_const& omega_, const view_2d& qv2qi_nucleat_tend_,
+                    const view_2d& convective_updraft_tracer_, const view_2d& ice_nucleation_tracer_,
                     const view_1d_const& precip_liq_surf_flux_, const view_1d_const& precip_ice_surf_flux_,
                     const view_1d& precip_liq_surf_mass_, const view_1d& precip_ice_surf_mass_)
     {
@@ -323,6 +370,8 @@ public:
       bm                   = bm_;
       precip_liq_surf_flux = precip_liq_surf_flux_;
       precip_ice_surf_flux = precip_ice_surf_flux_;
+      omega = omega_;
+      qv2qi_nucleat_tend = qv2qi_nucleat_tend_;
       // OUT
       T_atm                = T_atm_;
       T_prev               = T_prev_;
@@ -332,6 +381,8 @@ public:
       diag_eff_radius_qr   = diag_eff_radius_qr_;
       precip_liq_surf_mass = precip_liq_surf_mass_;
       precip_ice_surf_mass = precip_ice_surf_mass_;
+      convective_updraft_tracer = convective_updraft_tracer_;
+      ice_nucleation_tracer = ice_nucleation_tracer_;
       // TODO: This is a list of variables not yet defined for post-processing, but are
       // defined in the F90 p3 interface code.  So this list will need to be checked as
       // new processes come online to make sure their requirements from p3 are being met.
