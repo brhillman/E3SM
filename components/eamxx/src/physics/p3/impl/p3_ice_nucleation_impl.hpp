@@ -6,6 +6,7 @@
 namespace scream {
 namespace p3 {
 
+// Note this is just deposition nucleation
 template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
@@ -37,15 +38,19 @@ void Functions<S,D>
    Spack dum{0.0}, N_nuc{0.0}, Q_nuc{0.0};
 
    if (any_if_not_log.any()) {
+     // From Cooper 1986
+     // Note: this is just deposition nucleation, formation of ice from vapor onto assumed particle
      dum = sp(0.005)*exp(sp(deposition_nucleation_exponent)*(tmelt-temp))*sp(1.0e3)*inv_rho;
 
      dum = min(dum, sp(1.0e5)*inv_rho);
 
+     // Actual vs expected ice number; if dum < ni, then we set nucleat_tend
      N_nuc = max(zero, (dum-ni)*inv_dt);
 
      const auto n_nuc_ge_nsmall = N_nuc >= nsmall && context;
 
      if (n_nuc_ge_nsmall.any()) {
+       // mi0 -- assumed mass that particles are created at
        Q_nuc = max(zero, (dum-ni)*mi0*inv_dt);
 
        qv2qi_nucleat_tend.set(any_if_not_log && n_nuc_ge_nsmall, Q_nuc);
