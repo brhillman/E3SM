@@ -222,6 +222,11 @@ void RRTMGPRadiation::set_grids(const std::shared_ptr<const GridsManager> grids_
   add_field<Computed>("eff_radius_qc_at_cldtop", scalar2d, micron, grid_name);
   add_field<Computed>("eff_radius_qi_at_cldtop", scalar2d, micron, grid_name);
 
+  // Added for offline rad
+  add_field<Computed>("T_int_rad" , scalar3d_int, K  , grid_name);
+  add_field<Computed>("lwp_rad"   , scalar3d_mid, g/m2, grid_name);
+  add_field<Computed>("iwp_rad"   , scalar3d_mid, g/m2, grid_name);
+
   // Translation of variables from EAM
   // --------------------------------------------------------------
   // EAM name | EAMXX name       | Description
@@ -731,6 +736,9 @@ void RRTMGPRadiation::run_impl (const double dt) {
   auto d_surf_lw_flux_up = get_field_in("surf_lw_flux_up").get_view<const Real*>();
   // Output fields
   auto d_tmid = get_field_out("T_mid").get_view<Real**>();
+  auto d_tint = get_field_out("T_int_rad").get_view<Real**>();
+  auto d_lwp  = get_field_out("lwp_rad").get_view<Real**>();
+  auto d_iwp  = get_field_out("iwp_rad").get_view<Real**>();
   auto d_cldfrac_rad = get_field_out("cldfrac_rad").get_view<Real**>();
 
   // Aerosol optics only exist if m_do_aerosol_rad is true, so declare views and copy from FM if so
@@ -906,7 +914,7 @@ void RRTMGPRadiation::run_impl (const double dt) {
 
       // d_tint and d_dz are used in eamxx calls and therefore
       // must be layout right
-      ulrreal2dk d_tint = ulrreal2dk(m_buffer.d_tint.data(), m_col_chunk_size, m_nlay+1);
+      //ulrreal2dk d_tint = ulrreal2dk(m_buffer.d_tint.data(), m_col_chunk_size, m_nlay+1);
       ulrreal2dk d_dz   = ulrreal2dk(m_buffer.d_dz.data(), m_col_chunk_size, m_nlay);
       auto d_mu0 = m_buffer.cosine_zenith;
 #ifdef RRTMGP_ENABLE_YAKL
@@ -1102,7 +1110,7 @@ void RRTMGPRadiation::run_impl (const double dt) {
           // toa, but SCREAM in general assumes data is toa to surface. We account
           // for this here by swapping bc_top and bc_bot in the case that the input
           // data is ordered surface to toa.
-          const auto T_int = ekat::subview(d_tint, i);
+          const auto T_int = ekat::subview(d_tint, icol);
           const int itop = (p_mid(0) < p_mid(nlay-1)) ? 0 : nlay-1;
           const Real bc_top = T_mid(itop);
           const Real bc_bot = sqrt(sqrt(d_surf_lw_flux_up(icol)/stebol));
@@ -1131,11 +1139,11 @@ void RRTMGPRadiation::run_impl (const double dt) {
             rel(i+1,k+1)         = d_rel(icol,k);
             rei(i+1,k+1)         = d_rei(icol,k);
             p_lev(i+1,k+1)       = d_pint(icol,k);
-            t_lev(i+1,k+1)       = d_tint(i,k);
+            t_lev(i+1,k+1)       = d_tint(icol,k);
           });
 
           p_lev(i+1,nlay+1) = d_pint(icol,nlay);
-          t_lev(i+1,nlay+1) = d_tint(i,nlay);
+          t_lev(i+1,nlay+1) = d_tint(icol,nlay);
 
           // Note that RRTMGP expects ordering (col,lay,bnd) but the FM keeps things in (col,bnd,lay) order
           if (do_aerosol_rad) {
@@ -1180,11 +1188,11 @@ void RRTMGPRadiation::run_impl (const double dt) {
             rel_k(i,k)         = d_rel(icol,k);
             rei_k(i,k)         = d_rei(icol,k);
             p_lev_k(i,k)       = d_pint(icol,k);
-            t_lev_k(i,k)       = d_tint(i,k);
+            t_lev_k(i,k)       = d_tint(icol,k);
           });
 
           p_lev_k(i,nlay) = d_pint(icol,nlay);
-          t_lev_k(i,nlay) = d_tint(i,nlay);
+          t_lev_k(i,nlay) = d_tint(icol,nlay);
 #endif
 
           // Note that RRTMGP expects ordering (col,lay,bnd) but the FM keeps things in (col,bnd,lay) order
