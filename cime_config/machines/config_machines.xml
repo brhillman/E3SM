@@ -2262,6 +2262,7 @@
         <command name="purge"/>
         <command name="use">/projects/sems/acme-boca-modulefiles/env-module</command>
         <command name="load">acme-boca-env</command>
+        <command name="load">aue/python</command>
         <command name="load">sems-archive-git</command>
         <command name="load">sems-archive-cmake/3.19.1</command>
         <command name="load">gnu/10.3.1</command>
