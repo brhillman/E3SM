@@ -308,6 +308,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<Pack> qr2qi_collect;
     view_2d<Pack> qc2qi_hetero_freeze;
     view_2d<Pack> qr2qi_immers_freeze;
+    view_2d<Pack> qc2qi_homfrz;
+    view_2d<Pack> qr2qi_homfrz;
     view_2d<Pack> qi2qr_melt;
     view_2d<Pack> qr_sed;
     view_2d<Pack> qc_sed;
@@ -602,6 +604,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
                                    const uview_1d<Pack> &qr, const uview_1d<Pack> &nr,
                                    const uview_1d<Pack> &qi, const uview_1d<Pack> &ni,
                                    const uview_1d<Pack> &qm, const uview_1d<Pack> &bm,
+                                   const uview_1d<Pack> &qc2qi_homfrz, const uview_1d<Pack> &qr2qi_homfrz,
                                    const uview_1d<Pack> &th_atm);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
