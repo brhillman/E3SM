@@ -209,6 +209,8 @@ Int Functions<S,D>
     const auto oqc2qi_collect      = ekat::subview(history_only.qc2qi_collect,i);
     const auto oqr2qi_collect      = ekat::subview(history_only.qr2qi_collect,i);
     const auto oqc2qi_hetero_freeze = ekat::subview(history_only.qc2qi_hetero_freeze,i);
+    const auto oqc2qi_homfrz        = ekat::subview(history_only.qc2qi_homfrz,i);
+    const auto oqr2qi_homfrz        = ekat::subview(history_only.qr2qi_homfrz,i);
     const auto oqr2qi_immers_freeze = ekat::subview(history_only.qr2qi_immers_freeze,i);
     const auto oqi2qr_melt         = ekat::subview(history_only.qi2qr_melt,i);
     const auto oqr_sed             = ekat::subview(history_only.qr_sed, i);
@@ -315,7 +317,7 @@ Int Functions<S,D>
     // homogeneous freezing of cloud and rain
     if(do_ice_production) {
       homogeneous_freezing(T_atm, oinv_exner, team, nk, ktop, kbot, kdir, oqc,
-                           onc, oqr, onr, oqi, oni, oqm, obm, oth);
+                           onc, oqr, onr, oqi, oni, oqm, obm, oqc2qi_homfrz, oqr2qi_homfrz, oth);
     }
 
     //

@@ -306,6 +306,8 @@ struct Functions
     view_2d<Spack> qc2qi_collect;
     view_2d<Spack> qr2qi_collect;
     view_2d<Spack> qc2qi_hetero_freeze;
+    view_2d<Spack> qc2qi_homfrz;
+    view_2d<Spack> qr2qi_homfrz;
     view_2d<Spack> qr2qi_immers_freeze;
     view_2d<Spack> qi2qr_melt;
     view_2d<Spack> qr_sed;
@@ -683,6 +685,8 @@ struct Functions
     const uview_1d<Spack>& ni,
     const uview_1d<Spack>& qm,
     const uview_1d<Spack>& bm,
+    const uview_1d<Spack>& qc2qi_homfrz,
+    const uview_1d<Spack>& qr2qi_homfrz,
     const uview_1d<Spack>& th_atm);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
