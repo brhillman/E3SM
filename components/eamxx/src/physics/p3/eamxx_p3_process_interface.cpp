@@ -144,6 +144,8 @@ void P3Microphysics::create_requests()
     add_field<Computed>("qr_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qi_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_homfrz", scalar3d_layout_mid, 1/s,  grid_name, ps);
+    add_field<Computed>("nr2ni_homfrz", scalar3d_layout_mid, 1/s,  grid_name, ps);
   }
 
   // History Only: (all fields are just outputs and are really only meant for I/O purposes)
@@ -424,6 +426,9 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qr_sed = get_field_out("qr_sed").get_view<Pack**>();
     history_only.qc_sed = get_field_out("qc_sed").get_view<Pack**>();
     history_only.qi_sed = get_field_out("qi_sed").get_view<Pack**>();
+    // number concentrations
+    history_only.nc2ni_homfrz = get_field_out("nc2ni_homfrz").get_view<Pack**>();
+    history_only.nr2ni_homfrz = get_field_out("nr2ni_homfrz").get_view<Pack**>();
   } else {
     // if not, let's use the unused buffer
     history_only.qr2qv_evap = m_buffer.unused;
@@ -443,6 +448,8 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qr_sed = m_buffer.unused;
     history_only.qc_sed = m_buffer.unused;
     history_only.qi_sed = m_buffer.unused;
+    history_only.nc2ni_homfrz = m_buffer.unused;
+    history_only.nr2ni_homfrz = m_buffer.unused;
   }
 #ifdef SCREAM_P3_SMALL_KERNELS
   // Temporaries
