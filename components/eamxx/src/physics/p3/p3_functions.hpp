@@ -308,6 +308,8 @@ struct Functions
     view_2d<Spack> qc2qi_hetero_freeze;
     view_2d<Spack> qc2qi_homfrz;
     view_2d<Spack> qr2qi_homfrz;
+    view_2d<Spack> nc2ni_homfrz;
+    view_2d<Spack> nr2ni_homfrz;
     view_2d<Spack> qr2qi_immers_freeze;
     view_2d<Spack> qi2qr_melt;
     view_2d<Spack> qr_sed;
@@ -687,6 +689,8 @@ struct Functions
     const uview_1d<Spack>& bm,
     const uview_1d<Spack>& qc2qi_homfrz,
     const uview_1d<Spack>& qr2qi_homfrz,
+    const uview_1d<Spack>& nc2ni_homfrz,
+    const uview_1d<Spack>& nr2ni_homfrz,
     const uview_1d<Spack>& th_atm);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
@@ -702,6 +706,10 @@ struct Functions
     const uview_2d<Spack>& ni,
     const uview_2d<Spack>& qm,
     const uview_2d<Spack>& bm,
+    const uview_1d<Spack>& qc2qi_homfrz,
+    const uview_1d<Spack>& qr2qi_homfrz,
+    const uview_1d<Spack>& nc2ni_homfrz,
+    const uview_1d<Spack>& nr2ni_homfrz,
     const uview_2d<Spack>& th_atm,
     const uview_1d<bool>& is_nucleat_possible,
     const uview_1d<bool>& is_hydromet_present);
