@@ -101,7 +101,7 @@ void Functions<S,D>
   const uview_1d<Spack>& qc2qr_ice_shed,
   const uview_1d<Spack>& qc2qi_collect,
   const uview_1d<Spack>& qr2qi_collect,
-  const uview_1d<Spack>& qc2qi_hetero_freeze,
+  const uview_1d<Spack>& qc2qi_immers_freeze,
   const uview_1d<Spack>& qr2qi_immers_freeze,
   const uview_1d<Spack>& qi2qr_melt,
   const uview_1d<Spack>& pratot,
@@ -162,7 +162,7 @@ void Functions<S,D>
       // initialize ice-phase  process rates
       qi2qv_sublim_tend   (0), // sublimation of ice
       nr_ice_shed_tend  (0), // source for rain number from collision of rain/ice above freezing and shedding
-      qc2qi_hetero_freeze_tend  (0), // immersion freezing droplets
+      qc2qi_immers_freeze_tend  (0), // immersion freezing droplets
       qr2qi_collect_tend   (0), // collection rain mass by ice
       qc2qr_ice_shed_tend   (0), // source for rain mass due to cloud water/ice collision above freezing and shedding or wet growth and shedding
       qi2qr_melt_tend   (0), // melting of ice
@@ -356,7 +356,7 @@ void Functions<S,D>
         else{
           cldliq_immersion_freezing(
               T_atm(k), lamc(k), mu_c(k), cdist1(k), qc_incld(k),
-              inv_qc_relvar(k), qc2qi_hetero_freeze_tend,
+              inv_qc_relvar(k), qc2qi_immers_freeze_tend,
               nc2ni_immers_freeze_tend, runtime_options, not_skip_micro);
         }
 
@@ -428,7 +428,7 @@ void Functions<S,D>
     // cell-average quantities.
     back_to_cell_average(
       cld_frac_l(k), cld_frac_r(k), cld_frac_i(k), qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend,
-      nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend, nr_evap_tend, ncautr, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_hetero_freeze_tend,
+      nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend, nr_evap_tend, ncautr, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend,
       qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend, nc_collect_tend,
       ncshdc, nc2ni_immers_freeze_tend, nr_collect_tend, ni_selfcollect_tend,
       qv2qi_vapdep_tend, nr2ni_immers_freeze_tend, ni_sublim_tend, qv2qi_nucleat_tend, ni_nucleat_tend, qc2qi_berg_tend, 
@@ -447,13 +447,13 @@ void Functions<S,D>
       // cloud
       cloud_water_conservation(
         qc(k), dt,
-        qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, not_skip_all,
+        qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, not_skip_all,
         cld_frac_l(k), cld_frac_i(k), runtime_options);
     } else {
       // cloud
       cloud_water_conservation(
         qc(k), dt,
-        qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, not_skip_all);
+        qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, not_skip_all);
     }
 
     // rain
@@ -464,7 +464,7 @@ void Functions<S,D>
     // ice
     ice_water_conservation(
       qi(k), qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend,
-      qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_hetero_freeze_tend, dt,
+      qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_immers_freeze_tend, dt,
       qinuc_cnt, qcheti_cnt, qicnt,
       qi2qv_sublim_tend, qi2qr_melt_tend, use_hetfrz_classnuc, not_skip_all);
 
@@ -489,7 +489,7 @@ void Functions<S,D>
 
     //-- ice-phase dependent processes:
     update_prognostic_ice(
-      qc2qi_hetero_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend,  qr2qi_immers_freeze_tend,
+      qc2qi_immers_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend,  qr2qi_immers_freeze_tend,
       nr2ni_immers_freeze_tend, nr_ice_shed_tend, qi2qr_melt_tend, ni2nr_melt_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qv2qi_nucleat_tend, ni_nucleat_tend, ni_selfcollect_tend, ni_sublim_tend,
       qc2qi_berg_tend, inv_exner(k), predictNc, wetgrowth, dt, nmltratio,
       rho_qm_cloud, ncheti_cnt, nicnt, ninuc_cnt, qcheti_cnt, qicnt, qinuc_cnt,  th_atm(k), qv(k), qi(k), ni(k), qm(k), bm(k), qc(k),
@@ -513,7 +513,7 @@ void Functions<S,D>
     qr_evap_tend(k)       .set(not_skip_all, qr2qv_evap_tend);
     vap_ice_exchange(k).set(not_skip_all, qv2qi_vapdep_tend - qi2qv_sublim_tend + qv2qi_nucleat_tend);
     vap_liq_exchange(k).set(not_skip_all, -qr2qv_evap_tend);
-    liq_ice_exchange(k).set(not_skip_all, qc2qi_hetero_freeze_tend + qr2qi_immers_freeze_tend - qi2qr_melt_tend + qc2qi_berg_tend + qc2qi_collect_tend + qr2qi_collect_tend);
+    liq_ice_exchange(k).set(not_skip_all, qc2qi_immers_freeze_tend + qr2qi_immers_freeze_tend - qi2qr_melt_tend + qc2qi_berg_tend + qc2qi_collect_tend + qr2qi_collect_tend);
 
     // set tendencies if extra_p3_diags is true
     if (extra_p3_diags) {
@@ -526,7 +526,7 @@ void Functions<S,D>
       qc2qr_ice_shed(k).set(not_skip_all, qc2qr_ice_shed_tend);
       qc2qi_collect(k).set(not_skip_all, qc2qi_collect_tend);
       qr2qi_collect(k).set(not_skip_all, qr2qi_collect_tend);
-      qc2qi_hetero_freeze(k).set(not_skip_all, qc2qi_hetero_freeze_tend);
+      qc2qi_immers_freeze(k).set(not_skip_all, qc2qi_immers_freeze_tend);
       qr2qi_immers_freeze(k).set(not_skip_all, qr2qi_immers_freeze_tend);
       qi2qr_melt(k).set(not_skip_all, qi2qr_melt_tend);
     }

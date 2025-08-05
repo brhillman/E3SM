@@ -43,7 +43,7 @@ void P3Microphysics::run_impl (const double dt)
     get_field_out("qc2qr_ice_shed").deep_copy(0.0);
     get_field_out("qc2qi_collect").deep_copy(0.0);
     get_field_out("qr2qi_collect").deep_copy(0.0);
-    get_field_out("qc2qi_hetero_freeze").deep_copy(0.0);
+    get_field_out("qc2qi_immers_freeze").deep_copy(0.0);
     get_field_out("qc2qi_homfrz").deep_copy(0.0);
     get_field_out("qr2qi_homfrz").deep_copy(0.0);
     get_field_out("qr2qi_immers_freeze").deep_copy(0.0);

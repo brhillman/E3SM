@@ -179,7 +179,7 @@ void run_bfb_p3_main_part2()
   std::vector<Real> hetfrz_contact_nucleation_tend(72,0.0);
   std::vector<Real> hetfrz_deposition_nucleation_tend(72,0.0);
   std::vector<Real> qr2qv_evap(72,0.0), qi2qv_sublim(72,0.0), qc2qr_accret(72,0.0), qc2qr_autoconv(72,0.0), qv2qi_vapdep(72,0.0),
-    qc2qi_berg(72,0.0), qc2qr_ice_shed(72,0.0), qc2qi_collect(72,0.0), qr2qi_collect(72,0.0), qc2qi_hetero_freeze(72,0.0),
+    qc2qi_berg(72,0.0), qc2qr_ice_shed(72,0.0), qc2qi_collect(72,0.0), qr2qi_collect(72,0.0), qc2qi_immers_freeze(72,0.0),
     qr2qi_immers_freeze(72,0.0), qi2qr_melt(72,0.0);
   static constexpr Int num_runs = sizeof(isds_baseline) / sizeof(P3MainPart2Data);
 
@@ -229,7 +229,7 @@ void run_bfb_p3_main_part2()
       d.nevapr, d.qr_evap_tend, d.vap_liq_exchange, d.vap_ice_exchange, d.liq_ice_exchange,
       qr2qv_evap.data(), qi2qv_sublim.data(), qc2qr_accret.data(), qc2qr_autoconv.data(),
       qv2qi_vapdep.data(), qc2qi_berg.data(), qc2qr_ice_shed.data(), qc2qi_collect.data(), qr2qi_collect.data(),
-      qc2qi_hetero_freeze.data(), qr2qi_immers_freeze.data(), qi2qr_melt.data(),
+      qc2qi_immers_freeze.data(), qr2qi_immers_freeze.data(), qi2qr_melt.data(),
       d.pratot, d.prctot, &d.is_hydromet_present);
   }
 

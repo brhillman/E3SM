@@ -35,7 +35,7 @@ void BackToCellAverageData::randomize(std::mt19937_64& engine)
   nc_nuceat_tend = data_dist(engine);
   qi2qv_sublim_tend = data_dist(engine);
   nr_ice_shed_tend = data_dist(engine);
-  qc2qi_hetero_freeze_tend = data_dist(engine);
+  qc2qi_immers_freeze_tend = data_dist(engine);
   qr2qi_collect_tend = data_dist(engine);
   qc2qr_ice_shed_tend = data_dist(engine);
   qi2qr_melt_tend = data_dist(engine);
@@ -958,7 +958,7 @@ void p3_main_part2_host(
   Real* nevapr, Real* qr_evap_tend, Real* vap_liq_exchange, Real* vap_ice_exchange, Real* liq_ice_exchange, 
   Real* qr2qv_evap, Real* qi2qv_sublim, Real* qc2qr_accret, Real* qc2qr_autoconv,
   Real* qv2qi_vapdep, Real* qc2qi_berg, Real* qc2qr_ice_shed, Real* qc2qi_collect, Real* qr2qi_collect,
-  Real* qc2qi_hetero_freeze, Real* qr2qi_immers_freeze, Real* qi2qr_melt,
+  Real* qc2qi_immers_freeze, Real* qr2qi_immers_freeze, Real* qi2qr_melt,
   Real* pratot, Real* prctot, bool* is_hydromet_present)
 {
   using P3F  = Functions<Real, DefaultDevice>;
@@ -989,7 +989,7 @@ void p3_main_part2_host(
   hetfrz_contact_nucleation_tend = hetfrz_1.data();
   hetfrz_deposition_nucleation_tend = hetfrz_2.data();
   std::vector<Real> qr2qv_evap_v(nk,0), qi2qv_sublim_v(nk,0), qc2qr_accret_v(nk,0), qc2qr_autoconv_v(nk,0), qv2qi_vapdep_v(nk,0),
-    qc2qi_berg_v(nk,0), qc2qr_ice_shed_v(nk,0), qc2qi_collect_v(nk,0), qr2qi_collect_v(nk,0), qc2qi_hetero_freeze_v(nk,0),
+    qc2qi_berg_v(nk,0), qc2qr_ice_shed_v(nk,0), qc2qi_collect_v(nk,0), qr2qi_collect_v(nk,0), qc2qi_immers_freeze_v(nk,0),
     qr2qi_immers_freeze_v(nk,0), qi2qr_melt_v(nk,0);
   qr2qv_evap = qr2qv_evap_v.data();
   qi2qv_sublim = qi2qv_sublim_v.data();
@@ -1000,7 +1000,7 @@ void p3_main_part2_host(
   qc2qr_ice_shed = qc2qr_ice_shed_v.data();
   qc2qi_collect = qc2qi_collect_v.data();
   qr2qi_collect = qr2qi_collect_v.data();
-  qc2qi_hetero_freeze = qc2qi_hetero_freeze_v.data();
+  qc2qi_immers_freeze = qc2qi_immers_freeze_v.data();
   qr2qi_immers_freeze = qr2qi_immers_freeze_v.data();
   qi2qr_melt = qi2qr_melt_v.data();
 
@@ -1013,7 +1013,7 @@ void p3_main_part2_host(
         vap_ice_exchange, liq_ice_exchange, pratot, prctot, qv_prev, t_prev,
         qr2qv_evap, qi2qv_sublim, qc2qr_accret, qc2qr_autoconv,
         qv2qi_vapdep, qc2qi_berg, qc2qr_ice_shed, qc2qi_collect, qr2qi_collect,
-        qc2qi_hetero_freeze, qr2qi_immers_freeze, qi2qr_melt
+        qc2qi_immers_freeze, qr2qi_immers_freeze, qi2qr_melt
         },
     nk, temp_d);
 
@@ -1092,7 +1092,7 @@ void p3_main_part2_host(
     qc2qr_ice_shed_d    (temp_d[current_index++]),
     qc2qi_collect_d     (temp_d[current_index++]),
     qr2qi_collect_d     (temp_d[current_index++]),
-    qc2qi_hetero_freeze_d (temp_d[current_index++]),
+    qc2qi_immers_freeze_d (temp_d[current_index++]),
     qr2qi_immers_freeze_d (temp_d[current_index++]),
     qi2qr_melt_d        (temp_d[current_index++]);
 
@@ -1121,7 +1121,7 @@ void p3_main_part2_host(
       vap_ice_exchange_d, liq_ice_exchange_d, qr2qv_evap_d, qi2qv_sublim_d,
       qc2qr_accret_d, qc2qr_autoconv_d, qv2qi_vapdep_d, qc2qi_berg_d,
       qc2qr_ice_shed_d, qc2qi_collect_d, qr2qi_collect_d,
-      qc2qi_hetero_freeze_d, qr2qi_immers_freeze_d, qi2qr_melt_d,
+      qc2qi_immers_freeze_d, qr2qi_immers_freeze_d, qi2qr_melt_d,
       pratot_d, prctot_d, bools_d(0),nk, P3F::P3Runtime());
   });
 
@@ -1136,7 +1136,7 @@ void p3_main_part2_host(
     liq_ice_exchange_d, pratot_d, prctot_d,
     qr2qv_evap_d, qi2qv_sublim_d, qc2qr_accret_d, qc2qr_autoconv_d,
     qv2qi_vapdep_d, qc2qi_berg_d, qc2qr_ice_shed_d, qc2qi_collect_d,
-    qr2qi_collect_d, qc2qi_hetero_freeze_d, qr2qi_immers_freeze_d,
+    qr2qi_collect_d, qc2qi_immers_freeze_d, qr2qi_immers_freeze_d,
     qi2qr_melt_d
   };
 
@@ -1149,7 +1149,7 @@ void p3_main_part2_host(
       pratot, prctot,
       qr2qv_evap, qi2qv_sublim, qc2qr_accret, qc2qr_autoconv,
       qv2qi_vapdep, qc2qi_berg, qc2qr_ice_shed, qc2qi_collect, qr2qi_collect,
-      qc2qi_hetero_freeze, qr2qi_immers_freeze, qi2qr_melt
+      qc2qi_immers_freeze, qr2qi_immers_freeze, qi2qr_melt
     },
     nk, inout_views);
 
@@ -1375,7 +1375,7 @@ Int p3_main_host(
   std::vector<Real> qc2qr_ice_shed(nj*nk, 0.0);
   std::vector<Real> qc2qi_collect(nj*nk, 0.0);
   std::vector<Real> qr2qi_collect(nj*nk, 0.0);
-  std::vector<Real> qc2qi_hetero_freeze(nj*nk, 0.0);
+  std::vector<Real> qc2qi_immers_freeze(nj*nk, 0.0);
   std::vector<Real> qr2qi_immers_freeze(nj*nk, 0.0);
   std::vector<Real> qi2qr_melt(nj*nk, 0.0);
   std::vector<Real> qc_sedim(nj*nk, 0.0);
@@ -1389,7 +1389,7 @@ Int p3_main_host(
     qc2qr_accret.data(), qc2qr_autoconv.data(),
     qv2qi_vapdep.data(), qc2qi_berg.data(),
     qc2qr_ice_shed.data(), qc2qi_collect.data(),
-    qr2qi_collect.data(), qc2qi_hetero_freeze.data(),
+    qr2qi_collect.data(), qc2qi_immers_freeze.data(),
     qr2qi_immers_freeze.data(), qi2qr_melt.data(),
     qc_sedim.data(), qr_sedim.data(), qi_sedim.data()};
   std::vector<size_t> dim1(pointers.size(), nj);
@@ -1408,7 +1408,7 @@ Int p3_main_host(
   view_2d qc2qr_ice_shed_d(view[9]);
   view_2d qc2qi_collect_d(view[10]);
   view_2d qr2qi_collect_d(view[11]);
-  view_2d qc2qi_hetero_freeze_d(view[12]);
+  view_2d qc2qi_immers_freeze_d(view[12]);
   view_2d qr2qi_immers_freeze_d(view[13]);
   view_2d qi2qr_melt_d(view[14]);
   view_2d qc_sedim_d(view[15]);
@@ -1450,7 +1450,7 @@ Int p3_main_host(
       qr2qv_evap_d, qi2qv_sublim_d,
       qc2qr_accret_d, qc2qr_autoconv_d, qv2qi_vapdep_d, qc2qi_berg_d,
       qc2qr_ice_shed_d, qc2qi_collect_d, qr2qi_collect_d,
-      qc2qi_hetero_freeze_d, qr2qi_immers_freeze_d, qi2qr_melt_d,
+      qc2qi_immers_freeze_d, qr2qi_immers_freeze_d, qi2qr_melt_d,
       qc_sedim_d, qr_sedim_d, qi_sedim_d,
   };
 

@@ -92,17 +92,17 @@ void run_bfb()
       inv_qc_relvar[s]= device_data(vs).inv_qc_relvar;
     }
 
-    Spack qc2qi_hetero_freeze_tend{0.0};
+    Spack qc2qi_immers_freeze_tend{0.0};
     Spack nc2ni_immers_freeze_tend{0.0};
 
     Functions::cldliq_immersion_freezing(
         T_atm, lamc, mu_c, cdist1, qc_incld, inv_qc_relvar,
-        qc2qi_hetero_freeze_tend, nc2ni_immers_freeze_tend,
+        qc2qi_immers_freeze_tend, nc2ni_immers_freeze_tend,
         p3::Functions<Real,DefaultDevice>::P3Runtime());
 
     // Copy results back into views
     for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
-      device_data(vs).qc2qi_hetero_freeze_tend  = qc2qi_hetero_freeze_tend[s];
+      device_data(vs).qc2qi_immers_freeze_tend  = qc2qi_immers_freeze_tend[s];
       device_data(vs).nc2ni_immers_freeze_tend  = nc2ni_immers_freeze_tend[s];
     }
   });
@@ -113,7 +113,7 @@ void run_bfb()
   // Validate results.
   if (SCREAM_BFB_TESTING && this->m_baseline_action == COMPARE) {
     for (Int s = 0; s < max_pack_size; ++s) {
-      REQUIRE(cldliq_imm_freezing_data[s].qc2qi_hetero_freeze_tend == host_data[s].qc2qi_hetero_freeze_tend);
+      REQUIRE(cldliq_imm_freezing_data[s].qc2qi_immers_freeze_tend == host_data[s].qc2qi_immers_freeze_tend);
       REQUIRE(cldliq_imm_freezing_data[s].nc2ni_immers_freeze_tend == host_data[s].nc2ni_immers_freeze_tend);
     }
   }

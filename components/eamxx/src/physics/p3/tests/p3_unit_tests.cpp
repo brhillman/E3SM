@@ -44,7 +44,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       Spack qc2qr_autoconv_tend(cwdc_device(0).qc2qr_autoconv_tend);
       Spack qc2qr_accret_tend(cwdc_device(0).qc2qr_accret_tend);
       Spack qc2qi_collect_tend(cwdc_device(0).qc2qi_collect_tend);
-      Spack qc2qi_hetero_freeze_tend(cwdc_device(0).qc2qi_hetero_freeze_tend);
+      Spack qc2qi_immers_freeze_tend(cwdc_device(0).qc2qi_immers_freeze_tend);
       Spack qc2qr_ice_shed_tend(cwdc_device(0).qc2qr_ice_shed_tend);
       Spack qc2qi_berg_tend(cwdc_device(0).qc2qi_berg_tend);
       Spack qi2qv_sublim_tend(cwdc_device(0).qi2qv_sublim_tend);
@@ -53,14 +53,14 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       Spack qicnt(cwdc_device(0).qicnt);
       const bool use_hetfrz_classnuc = false;
       const Smask context(Smask(true));
-      Functions::cloud_water_conservation(qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend,
+      Functions::cloud_water_conservation(qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend,
 	  qcheti_cnt, qicnt, use_hetfrz_classnuc, context);
 
       cwdc_device(0).qc = qc[0];
       cwdc_device(0).qc2qr_autoconv_tend = qc2qr_autoconv_tend[0];
       cwdc_device(0).qc2qr_accret_tend = qc2qr_accret_tend[0];
       cwdc_device(0).qc2qi_collect_tend = qc2qi_collect_tend[0];
-      cwdc_device(0).qc2qi_hetero_freeze_tend = qc2qi_hetero_freeze_tend[0];
+      cwdc_device(0).qc2qi_immers_freeze_tend = qc2qi_immers_freeze_tend[0];
       cwdc_device(0).qc2qr_ice_shed_tend = qc2qr_ice_shed_tend[0];
       cwdc_device(0).qc2qi_berg_tend = qc2qi_berg_tend[0];
       cwdc_device(0).qi2qv_sublim_tend = qi2qv_sublim_tend[0];
@@ -76,7 +76,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
     REQUIRE(std::abs(cwdc_host(0).qc2qr_autoconv_tend - cwdc[0].qc2qr_autoconv_tend*ratio) <= C::macheps);
     REQUIRE(cwdc_host(0).qc2qr_accret_tend == 0.0);
     REQUIRE(cwdc_host(0).qc2qi_collect_tend == 0.0);
-    REQUIRE(cwdc_host(0).qc2qi_hetero_freeze_tend == 0.0);
+    REQUIRE(cwdc_host(0).qc2qi_immers_freeze_tend == 0.0);
     REQUIRE(cwdc_host(0).qc2qr_ice_shed_tend == 0.0);
     REQUIRE(cwdc_host(0).qc2qi_berg_tend == 0.0);
     REQUIRE(std::abs(cwdc_host(0).qi2qv_sublim_tend -(1.0 - ratio)) <= C::macheps);
@@ -157,7 +157,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       Spack qr2qi_collect_tend(iwdc_device(0).qr2qi_collect_tend);
       Spack qc2qi_collect_tend(iwdc_device(0).qc2qi_collect_tend);
       Spack qr2qi_immers_freeze_tend(iwdc_device(0).qr2qi_immers_freeze_tend);
-      Spack qc2qi_hetero_freeze_tend(iwdc_device(0).qc2qi_hetero_freeze_tend);
+      Spack qc2qi_immers_freeze_tend(iwdc_device(0).qc2qi_immers_freeze_tend);
       Spack qc2qi_berg_tend(iwdc_device(0).qc2qi_berg_tend);
       Spack qi2qv_sublim_tend(iwdc_device(0).qi2qv_sublim_tend);
       Spack qi2qr_melt_tend(iwdc_device(0).qi2qr_melt_tend);
@@ -167,7 +167,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       const bool use_hetfrz_classnuc = false;
       const Smask context(Smask(true));
 
-      Functions::ice_water_conservation(qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_hetero_freeze_tend, iwdc_device(0).dt, qinuc_cnt, qcheti_cnt, qicnt, qi2qv_sublim_tend, qi2qr_melt_tend,
+      Functions::ice_water_conservation(qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_immers_freeze_tend, iwdc_device(0).dt, qinuc_cnt, qcheti_cnt, qicnt, qi2qv_sublim_tend, qi2qr_melt_tend,
 	  use_hetfrz_classnuc, context);
 
       iwdc_device(0).qi = qi[0];
@@ -176,7 +176,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       iwdc_device(0).qr2qi_collect_tend = qr2qi_collect_tend[0];
       iwdc_device(0).qc2qi_collect_tend = qc2qi_collect_tend[0];
       iwdc_device(0).qr2qi_immers_freeze_tend = qr2qi_immers_freeze_tend[0];
-      iwdc_device(0).qc2qi_hetero_freeze_tend = qc2qi_hetero_freeze_tend[0];
+      iwdc_device(0).qc2qi_immers_freeze_tend = qc2qi_immers_freeze_tend[0];
       iwdc_device(0).qc2qi_berg_tend = qc2qi_berg_tend[0];
       iwdc_device(0).qi2qv_sublim_tend = qi2qv_sublim_tend[0];
       iwdc_device(0).qi2qr_melt_tend = qi2qr_melt_tend[0];
@@ -206,7 +206,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
     static_assert(max_pack_size % Spack::n == 0, "Unit testing infrastructure does not support this pack size (does not evenly divide 16)");
 
     CloudWaterConservationData cwdc[max_pack_size] = {
-      //qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, context
+      //qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt, use_hetfrz_classnuc, context
       {9.9999999999999995e-7, 1800.0, 1.5832574016248739e-12, 1.0630996907148179e-12, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, true},
       {6.4285714285714288e-5, 1800.0, 5.0577951315583066e-7, 7.7585489624948031e-4, 1.5683327213659326e-4, 1.2893174331809564e-14, 0.0, 5.0463073442953805e-6, 0.0, 5.1387602886199180e-7, 0.0, 0.0, false, true},
       {0.0, 1800.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false, true},
@@ -248,14 +248,14 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       const Int offset = i * Spack::n;
 
       // Init pack inputs
-      Spack qc, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt;
+      Spack qc, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qcheti_cnt, qicnt;
       Smask context;
       for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
         qc[s]     = cwdc_device(vs).qc;
         qc2qr_autoconv_tend[s]  = cwdc_device(vs).qc2qr_autoconv_tend;
         qc2qr_accret_tend[s]  = cwdc_device(vs).qc2qr_accret_tend;
         qc2qi_collect_tend[s]  = cwdc_device(vs).qc2qi_collect_tend;
-        qc2qi_hetero_freeze_tend[s] = cwdc_device(vs).qc2qi_hetero_freeze_tend;
+        qc2qi_immers_freeze_tend[s] = cwdc_device(vs).qc2qi_immers_freeze_tend;
         qc2qr_ice_shed_tend[s]  = cwdc_device(vs).qc2qr_ice_shed_tend;
         qc2qi_berg_tend[s] = cwdc_device(vs).qc2qi_berg_tend;
         qi2qv_sublim_tend[s]  = cwdc_device(vs).qi2qv_sublim_tend;
@@ -266,7 +266,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       }
       const bool use_hetfrz_classnuc = false;
 
-      Functions::cloud_water_conservation(qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend,
+      Functions::cloud_water_conservation(qc, cwdc_device(0).dt, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend,
 	  qcheti_cnt, qicnt, use_hetfrz_classnuc, context);
       // Copy results back into views
       for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
@@ -274,7 +274,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         cwdc_device(vs).qc2qr_autoconv_tend  = qc2qr_autoconv_tend[s];
         cwdc_device(vs).qc2qr_accret_tend  = qc2qr_accret_tend[s];
         cwdc_device(vs).qc2qi_collect_tend  = qc2qi_collect_tend[s];
-        cwdc_device(vs).qc2qi_hetero_freeze_tend = qc2qi_hetero_freeze_tend[s];
+        cwdc_device(vs).qc2qi_immers_freeze_tend = qc2qi_immers_freeze_tend[s];
         cwdc_device(vs).qc2qi_berg_tend = qc2qi_berg_tend[s];
         cwdc_device(vs).qi2qv_sublim_tend  = qi2qv_sublim_tend[s];
         cwdc_device(vs).qv2qi_vapdep_tend  = qv2qi_vapdep_tend[s];
@@ -293,7 +293,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         REQUIRE(cwdc[s].qc2qr_autoconv_tend  == cwdc_host(s).qc2qr_autoconv_tend);
         REQUIRE(cwdc[s].qc2qr_accret_tend  == cwdc_host(s).qc2qr_accret_tend);
         REQUIRE(cwdc[s].qc2qi_collect_tend  == cwdc_host(s).qc2qi_collect_tend);
-        REQUIRE(cwdc[s].qc2qi_hetero_freeze_tend == cwdc_host(s).qc2qi_hetero_freeze_tend);
+        REQUIRE(cwdc[s].qc2qi_immers_freeze_tend == cwdc_host(s).qc2qi_immers_freeze_tend);
         REQUIRE(cwdc[s].qc2qi_berg_tend == cwdc_host(s).qc2qi_berg_tend);
         REQUIRE(cwdc[s].qi2qv_sublim_tend  == cwdc_host(s).qi2qv_sublim_tend);
         REQUIRE(cwdc[s].qv2qi_vapdep_tend  == cwdc_host(s).qv2qi_vapdep_tend);
@@ -313,7 +313,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
     using KTH = KokkosTypes<HostDevice>;
 
     IceWaterConservationData iwdc[max_pack_size] = {
-      // qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_hetero_freeze_tend, iwdc_device(0).dt, qi2qv_sublim_tend, qi2qr_melt_tend, qinuc_cnt, qcheti_cnt, qicnt, use_hetfrz_classnuc, context
+      // qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_immers_freeze_tend, iwdc_device(0).dt, qi2qv_sublim_tend, qi2qr_melt_tend, qinuc_cnt, qcheti_cnt, qicnt, use_hetfrz_classnuc, context
       {1.0e-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1800.0, 0.0, 1.9205467584100191e-4, 0.0, 0.0, 0.0, false, true},
       {5.0e-8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1800.0, 1.8234653652173277e-7, 0.0, 0.0, 0.0, 0.0, false, true},
       {1.0e-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1800.0, 0.0, 2.3237448636383435e-3, 0.0, 0.0, 0.0, false, true},
@@ -355,7 +355,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
       const Int offset = i * Spack::n;
 
       // Init pack inputs
-      Spack qi,qv2qi_vapdep_tend,qv2qi_nucleat_tend,qc2qi_berg_tend,qr2qi_collect_tend,qc2qi_collect_tend,qr2qi_immers_freeze_tend,qc2qi_hetero_freeze_tend,qi2qv_sublim_tend,qi2qr_melt_tend,qinuc_cnt,qcheti_cnt,qicnt;
+      Spack qi,qv2qi_vapdep_tend,qv2qi_nucleat_tend,qc2qi_berg_tend,qr2qi_collect_tend,qc2qi_collect_tend,qr2qi_immers_freeze_tend,qc2qi_immers_freeze_tend,qi2qv_sublim_tend,qi2qr_melt_tend,qinuc_cnt,qcheti_cnt,qicnt;
       Smask context;
       for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
         qi[s]  = iwdc_device(vs).qi;
@@ -365,7 +365,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         qr2qi_collect_tend[s]  = iwdc_device(vs).qr2qi_collect_tend;
         qc2qi_collect_tend[s]  = iwdc_device(vs).qc2qi_collect_tend;
         qr2qi_immers_freeze_tend[s] = iwdc_device(vs).qr2qi_immers_freeze_tend;
-        qc2qi_hetero_freeze_tend[s] = iwdc_device(vs).qc2qi_hetero_freeze_tend;
+        qc2qi_immers_freeze_tend[s] = iwdc_device(vs).qc2qi_immers_freeze_tend;
         qi2qv_sublim_tend[s] = iwdc_device(vs).qi2qv_sublim_tend;
         qi2qr_melt_tend[s] = iwdc_device(vs).qi2qr_melt_tend;
         qinuc_cnt[s] = iwdc_device(vs).qinuc_cnt;
@@ -374,7 +374,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         context.set(s, iwdc_device(vs).context);
       }
       const bool use_hetfrz_classnuc = false;
-      Functions::ice_water_conservation(qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_hetero_freeze_tend, iwdc_device(0).dt, qinuc_cnt, qcheti_cnt, qicnt, qi2qv_sublim_tend, qi2qr_melt_tend,
+      Functions::ice_water_conservation(qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_immers_freeze_tend, iwdc_device(0).dt, qinuc_cnt, qcheti_cnt, qicnt, qi2qv_sublim_tend, qi2qr_melt_tend,
 	  use_hetfrz_classnuc, context);
       // Copy results back into views
       for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
@@ -385,7 +385,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         iwdc_device(vs).qr2qi_collect_tend = qr2qi_collect_tend[s];
         iwdc_device(vs).qc2qi_collect_tend = qc2qi_collect_tend[s];
         iwdc_device(vs).qr2qi_immers_freeze_tend = qr2qi_immers_freeze_tend[s];
-        iwdc_device(vs).qc2qi_hetero_freeze_tend = qc2qi_hetero_freeze_tend[s];
+        iwdc_device(vs).qc2qi_immers_freeze_tend = qc2qi_immers_freeze_tend[s];
         iwdc_device(vs).qi2qv_sublim_tend = qi2qv_sublim_tend[s];
         iwdc_device(vs).qi2qr_melt_tend = qi2qr_melt_tend[s];
       }
@@ -404,7 +404,7 @@ struct UnitWrap::UnitTest<D>::TestP3Conservation : public UnitWrap::UnitTest<D>:
         REQUIRE(iwdc[s].qr2qi_collect_tend  == iwdc_host(s).qr2qi_collect_tend);
         REQUIRE(iwdc[s].qc2qi_collect_tend == iwdc_host(s).qc2qi_collect_tend);
         REQUIRE(iwdc[s].qr2qi_immers_freeze_tend == iwdc_host(s).qr2qi_immers_freeze_tend);
-        REQUIRE(iwdc[s].qc2qi_hetero_freeze_tend == iwdc_host(s).qc2qi_hetero_freeze_tend);
+        REQUIRE(iwdc[s].qc2qi_immers_freeze_tend == iwdc_host(s).qc2qi_immers_freeze_tend);
         REQUIRE(iwdc[s].qi2qv_sublim_tend == iwdc_host(s).qi2qv_sublim_tend);
         REQUIRE(iwdc[s].qi2qr_melt_tend == iwdc_host(s).qi2qr_melt_tend);
       }
@@ -654,7 +654,7 @@ struct UnitWrap::UnitTest<D>::TestP3UpdatePrognosticIce : public UnitWrap::UnitT
       const Int offset = i * Spack::n;
 
       // Init pack inputs
-      Spack qc2qi_hetero_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend,
+      Spack qc2qi_immers_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend,
             qr2qi_immers_freeze_tend, nr2ni_immers_freeze_tend, nr_ice_shed_tend, qi2qr_melt_tend, ni2nr_melt_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qv2qi_nucleat_tend,
             ni_nucleat_tend, ni_selfcollect_tend, ni_sublim_tend, qc2qi_berg_tend, inv_exner,
             rho_qm_cloud, ncheti_cnt, nicnt, ninuc_cnt, qcheti_cnt, qicnt, qinuc_cnt, th_atm, qv, qc, nc, qr, nr, qi, ni, qm, bm;
@@ -666,7 +666,7 @@ struct UnitWrap::UnitTest<D>::TestP3UpdatePrognosticIce : public UnitWrap::UnitT
       const bool do_predict_nc = pupidc_device(0).do_predict_nc;
 
       for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
-        qc2qi_hetero_freeze_tend[s] = pupidc_device(vs).qc2qi_hetero_freeze_tend;
+        qc2qi_immers_freeze_tend[s] = pupidc_device(vs).qc2qi_immers_freeze_tend;
         qc2qi_collect_tend[s]  = pupidc_device(vs).qc2qi_collect_tend;
         qc2qr_ice_shed_tend[s]  = pupidc_device(vs).qc2qr_ice_shed_tend;
         nc_collect_tend[s]  = pupidc_device(vs).nc_collect_tend;
@@ -710,7 +710,7 @@ struct UnitWrap::UnitTest<D>::TestP3UpdatePrognosticIce : public UnitWrap::UnitT
         log_wetgrowth.set(s, pupidc_device(vs).log_wetgrowth);
       }
       const bool use_hetfrz_classnuc = false;
-      Functions::update_prognostic_ice(qc2qi_hetero_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend,ncshdc,
+      Functions::update_prognostic_ice(qc2qi_immers_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend,ncshdc,
                                        qr2qi_collect_tend,   nr_collect_tend,  qr2qi_immers_freeze_tend,  nr2ni_immers_freeze_tend,  nr_ice_shed_tend,
                                        qi2qr_melt_tend,  ni2nr_melt_tend,  qi2qv_sublim_tend,  qv2qi_vapdep_tend,  qv2qi_nucleat_tend,  ni_nucleat_tend,
                                        ni_selfcollect_tend,  ni_sublim_tend,  qc2qi_berg_tend,  inv_exner,

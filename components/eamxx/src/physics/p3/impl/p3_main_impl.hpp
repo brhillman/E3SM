@@ -208,7 +208,7 @@ Int Functions<S,D>
     const auto oqc2qr_ice_shed     = ekat::subview(history_only.qc2qr_ice_shed,i);
     const auto oqc2qi_collect      = ekat::subview(history_only.qc2qi_collect,i);
     const auto oqr2qi_collect      = ekat::subview(history_only.qr2qi_collect,i);
-    const auto oqc2qi_hetero_freeze = ekat::subview(history_only.qc2qi_hetero_freeze,i);
+    const auto oqc2qi_immers_freeze = ekat::subview(history_only.qc2qi_immers_freeze,i);
     const auto oqc2qi_homfrz        = ekat::subview(history_only.qc2qi_homfrz,i);
     const auto oqr2qi_homfrz        = ekat::subview(history_only.qr2qi_homfrz,i);
     const auto onc2ni_homfrz        = ekat::subview(history_only.nc2ni_homfrz,i);
@@ -278,7 +278,7 @@ Int Functions<S,D>
       mu_r, lamr, logn0r, oqv2qi_depos_tend, oprecip_total_tend, onevapr, qr_evap_tend,
       ovap_liq_exchange, ovap_ice_exchange, oliq_ice_exchange,
       oqr2qv_evap, oqi2qv_sublim, oqc2qr_accret, oqc2qr_autoconv, oqv2qi_vapdep,
-      oqc2qi_berg, oqc2qr_ice_shed, oqc2qi_collect, oqr2qi_collect, oqc2qi_hetero_freeze, oqr2qi_immers_freeze, oqi2qr_melt,
+      oqc2qi_berg, oqc2qr_ice_shed, oqc2qi_collect, oqr2qi_collect, oqc2qi_immers_freeze, oqr2qi_immers_freeze, oqi2qr_melt,
       pratot, prctot, hydrometeorsPresent, nk, runtime_options);
 
     //NOTE: At this point, it is possible to have negative (but small) nc, nr, ni.  This is not

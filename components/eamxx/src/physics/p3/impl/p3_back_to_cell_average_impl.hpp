@@ -20,7 +20,7 @@ void Functions<S,D>
   Spack& qc2qr_autoconv_tend, Spack& nc_accret_tend, Spack& nc_selfcollect_tend,
   Spack& nc2nr_autoconv_tend, Spack& nr_selfcollect_tend, Spack& nr_evap_tend,
   Spack& ncautr,
-  Spack& qi2qv_sublim_tend, Spack& nr_ice_shed_tend, Spack& qc2qi_hetero_freeze_tend,
+  Spack& qi2qv_sublim_tend, Spack& nr_ice_shed_tend, Spack& qc2qi_immers_freeze_tend,
   Spack& qr2qi_collect_tend, Spack& qc2qr_ice_shed_tend, Spack& qi2qr_melt_tend,
   Spack& qc2qi_collect_tend, Spack& qr2qi_immers_freeze_tend, Spack& ni2nr_melt_tend,
   Spack& nc_collect_tend, Spack& ncshdc, Spack& nc2ni_immers_freeze_tend,
@@ -59,7 +59,7 @@ void Functions<S,D>
        qi2qv_sublim_tend.set(context, qi2qv_sublim_tend * cld_frac_i); // Sublimation of ice in ice cloud
     }
   nr_ice_shed_tend.set(context, nr_ice_shed_tend * il_cldm); // Rain # increase due to shedding from rain-ice collisions, occurs when ice and liquid interact
-  qc2qi_hetero_freeze_tend.set(context, qc2qi_hetero_freeze_tend * il_cldm); // Immersion freezing of cloud drops
+  qc2qi_immers_freeze_tend.set(context, qc2qi_immers_freeze_tend * il_cldm); // Immersion freezing of cloud drops
   qr2qi_collect_tend.set(context, qr2qi_collect_tend * ir_cldm);  // Collection of rain mass by ice
   qc2qr_ice_shed_tend.set(context, qc2qr_ice_shed_tend * il_cldm);  // Rain mass growth due to shedding of fain drops after collisions with ice, occurs when ice and liquid interact
   qi2qr_melt_tend.set(context, qi2qr_melt_tend * cld_frac_i);    // Melting of ice

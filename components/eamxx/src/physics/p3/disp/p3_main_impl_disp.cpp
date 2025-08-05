@@ -181,7 +181,7 @@ Int Functions<Real,DefaultDevice>
   auto qc2qr_ice_shed          = history_only.qc2qr_ice_shed;
   auto qc2qi_collect           = history_only.qc2qi_collect;
   auto qr2qi_collect           = history_only.qr2qi_collect;
-  auto qc2qi_hetero_freeze     = history_only.qc2qi_hetero_freeze;
+  auto qc2qi_immers_freeze     = history_only.qc2qi_immers_freeze;
   auto qr2qi_immers_freeze     = history_only.qr2qi_immers_freeze;
   auto qi2qr_melt              = history_only.qi2qr_melt;
   auto qr_sed                  = history_only.qr_sed;
@@ -283,7 +283,7 @@ Int Functions<Real,DefaultDevice>
       vap_liq_exchange, vap_ice_exchange, liq_ice_exchange,
       qr2qv_evap, qi2qv_sublim, qc2qr_accret, qc2qr_autoconv,
       qv2qi_vapdep, qc2qi_berg, qc2qr_ice_shed, qc2qi_collect,
-      qr2qi_collect, qc2qi_hetero_freeze, qr2qi_immers_freeze, qi2qr_melt,
+      qr2qi_collect, qc2qi_immers_freeze, qr2qi_immers_freeze, qi2qr_melt,
       pratot, prctot, nucleationPossible, hydrometeorsPresent, runtime_options);
 
   //NOTE: At this point, it is possible to have negative (but small) nc, nr, ni.  This is not

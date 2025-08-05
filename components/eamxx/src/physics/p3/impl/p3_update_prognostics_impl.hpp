@@ -10,7 +10,7 @@ template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
 ::update_prognostic_ice(
-  const Spack& qc2qi_hetero_freeze_tend, const Spack& qc2qi_collect_tend,  const Spack& qc2qr_ice_shed_tend, const Spack& nc_collect_tend,
+  const Spack& qc2qi_immers_freeze_tend, const Spack& qc2qi_collect_tend,  const Spack& qc2qr_ice_shed_tend, const Spack& nc_collect_tend,
   const Spack& nc2ni_immers_freeze_tend, const Spack& ncshdc, const Spack& qr2qi_collect_tend, const Spack& nr_collect_tend,
   const Spack& qr2qi_immers_freeze_tend, const Spack& nr2ni_immers_freeze_tend, const Spack& nr_ice_shed_tend, const Spack& qi2qr_melt_tend,
   const Spack& ni2nr_melt_tend, const Spack& qi2qv_sublim_tend, const Spack& qv2qi_vapdep_tend, const Spack& qv2qi_nucleat_tend,
@@ -31,7 +31,7 @@ void Functions<S,D>
     qc.set(context, qc + (-qcheti_cnt-qicnt-qc2qi_collect_tend-qc2qr_ice_shed_tend-qc2qi_berg_tend)*dt);
   }
   else{
-    qc.set(context, qc + (-qc2qi_hetero_freeze_tend-qc2qi_collect_tend-qc2qr_ice_shed_tend-qc2qi_berg_tend)*dt);
+    qc.set(context, qc + (-qc2qi_immers_freeze_tend-qc2qi_collect_tend-qc2qr_ice_shed_tend-qc2qi_berg_tend)*dt);
   }
 
 
@@ -67,11 +67,11 @@ void Functions<S,D>
     ni.set(context, ni + (ni_nucleat_tend - ni2nr_melt_tend - ni_sublim_tend - ni_selfcollect_tend + nr2ni_immers_freeze_tend +ncheti_cnt+nicnt+ninuc_cnt)*dt);
   }
   else{
-    const auto dum = (qr2qi_collect_tend + qc2qi_collect_tend + qr2qi_immers_freeze_tend + qc2qi_hetero_freeze_tend) * dt;
+    const auto dum = (qr2qi_collect_tend + qc2qi_collect_tend + qr2qi_immers_freeze_tend + qc2qi_immers_freeze_tend) * dt;
     qi.set(context, qi + (qv2qi_vapdep_tend + qv2qi_nucleat_tend + qc2qi_berg_tend) * dt + dum);
     qm.set(context, qm + dum);
     bm.set(context, bm + (qr2qi_collect_tend * INV_RHO_RIMEMAX + qc2qi_collect_tend / rho_qm_cloud + (qr2qi_immers_freeze_tend +
-                                                                              qc2qi_hetero_freeze_tend) * INV_RHO_RIMEMAX) * dt);
+                                                                              qc2qi_immers_freeze_tend) * INV_RHO_RIMEMAX) * dt);
     ni.set(context, ni + (ni_nucleat_tend - ni2nr_melt_tend - ni_sublim_tend - ni_selfcollect_tend + nr2ni_immers_freeze_tend + nc2ni_immers_freeze_tend) * dt);
   }
 
@@ -107,7 +107,7 @@ void Functions<S,D>
   else{
     qv.set(context, qv + (-qv2qi_vapdep_tend+qi2qv_sublim_tend-qv2qi_nucleat_tend)*dt);
     th_atm.set(context, th_atm + inv_exner * ((qv2qi_vapdep_tend - qi2qv_sublim_tend + qv2qi_nucleat_tend) * (latvap+latice) * INV_CP +
-                                (qr2qi_collect_tend + qc2qi_collect_tend + qc2qi_hetero_freeze_tend + qr2qi_immers_freeze_tend -
+                                (qr2qi_collect_tend + qc2qi_collect_tend + qc2qi_immers_freeze_tend + qr2qi_immers_freeze_tend -
                                 qi2qr_melt_tend + qc2qi_berg_tend) * latice * INV_CP) * dt);
   }
 }

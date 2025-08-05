@@ -136,7 +136,7 @@ void P3Microphysics::set_grids(const std::shared_ptr<const GridsManager> grids_m
     add_field<Computed>("qc2qr_ice_shed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
-    add_field<Computed>("qc2qi_hetero_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("qc2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
@@ -413,7 +413,7 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qr_ice_shed = get_field_out("qc2qr_ice_shed").get_view<Pack**>();
     history_only.qc2qi_collect = get_field_out("qc2qi_collect").get_view<Pack**>();
     history_only.qr2qi_collect = get_field_out("qr2qi_collect").get_view<Pack**>();
-    history_only.qc2qi_hetero_freeze = get_field_out("qc2qi_hetero_freeze").get_view<Pack**>();
+    history_only.qc2qi_immers_freeze = get_field_out("qc2qi_immers_freeze").get_view<Pack**>();
     history_only.qc2qi_homfrz = get_field_out("qc2qi_homfrz").get_view<Pack**>();
     history_only.qr2qi_homfrz = get_field_out("qr2qi_homfrz").get_view<Pack**>();
     history_only.qr2qi_immers_freeze = get_field_out("qr2qi_immers_freeze").get_view<Pack**>();
@@ -435,7 +435,7 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qr_ice_shed = m_buffer.unused;
     history_only.qc2qi_collect = m_buffer.unused;
     history_only.qr2qi_collect = m_buffer.unused;
-    history_only.qc2qi_hetero_freeze = m_buffer.unused;
+    history_only.qc2qi_immers_freeze = m_buffer.unused;
     history_only.qc2qi_homfrz = m_buffer.unused;
     history_only.qr2qi_homfrz = m_buffer.unused;
     history_only.qr2qi_immers_freeze = m_buffer.unused;

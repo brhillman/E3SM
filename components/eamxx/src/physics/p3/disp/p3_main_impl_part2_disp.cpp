@@ -98,7 +98,7 @@ void Functions<Real,DefaultDevice>
   const uview_2d<Spack>& qc2qr_ice_shed,
   const uview_2d<Spack>& qc2qi_collect,
   const uview_2d<Spack>& qr2qi_collect,
-  const uview_2d<Spack>& qc2qi_hetero_freeze,
+  const uview_2d<Spack>& qc2qi_immers_freeze,
   const uview_2d<Spack>& qr2qi_immers_freeze,
   const uview_2d<Spack>& qi2qr_melt,
   const uview_2d<Spack>& pratot,
@@ -144,7 +144,7 @@ void Functions<Real,DefaultDevice>
       ekat::subview(nevapr, i), ekat::subview(qr_evap_tend, i), ekat::subview(vap_liq_exchange, i), ekat::subview(vap_ice_exchange, i), ekat::subview(liq_ice_exchange, i),
       ekat::subview(qr2qv_evap, i), ekat::subview(qi2qv_sublim, i), ekat::subview(qc2qr_accret, i), ekat::subview(qc2qr_autoconv, i),
       ekat::subview(qv2qi_vapdep, i), ekat::subview(qc2qi_berg, i), ekat::subview(qc2qr_ice_shed, i), ekat::subview(qc2qi_collect, i),
-      ekat::subview(qr2qi_collect, i), ekat::subview(qc2qi_hetero_freeze, i), ekat::subview(qr2qi_immers_freeze, i),
+      ekat::subview(qr2qi_collect, i), ekat::subview(qc2qi_immers_freeze, i), ekat::subview(qr2qi_immers_freeze, i),
       ekat::subview(qi2qr_melt, i),
       ekat::subview(pratot, i), ekat::subview(prctot, i), hydrometeorsPresent(i), nk, runtime_options);
 

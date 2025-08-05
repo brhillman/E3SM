@@ -305,7 +305,7 @@ struct Functions
     view_2d<Spack> qc2qr_ice_shed;
     view_2d<Spack> qc2qi_collect;
     view_2d<Spack> qr2qi_collect;
-    view_2d<Spack> qc2qi_hetero_freeze;
+    view_2d<Spack> qc2qi_immers_freeze;
     view_2d<Spack> qc2qi_homfrz;
     view_2d<Spack> qr2qi_homfrz;
     view_2d<Spack> nc2ni_homfrz;
@@ -415,7 +415,7 @@ struct Functions
                                    Spack& qc2qr_autoconv_tend, Spack& nc_accret_tend, Spack& nc_selfcollect_tend,
                                    Spack& nc2nr_autoconv_tend, Spack& nr_selfcollect_tend, Spack& nr_evap_tend,
                                    Spack& ncautr,
-                                   Spack& qi2qv_sublim_tend, Spack& nr_ice_shed_tend, Spack& qc2qi_hetero_freeze_tend,
+                                   Spack& qi2qv_sublim_tend, Spack& nr_ice_shed_tend, Spack& qc2qi_immers_freeze_tend,
                                    Spack& qr2qi_collect_tend, Spack& qc2qr_ice_shed_tend, Spack& qi2qr_melt_tend,
                                    Spack& qc2qi_collect_tend, Spack& qr2qi_immers_freeze_tend, Spack& ni2nr_melt_tend,
                                    Spack& nc_collect_tend, Spack& ncshdc, Spack& nc2ni_immers_freeze_tend,
@@ -735,7 +735,7 @@ struct Functions
 
   KOKKOS_FUNCTION
   static void cloud_water_conservation(const Spack& qc, const Scalar dt,
-    Spack& qc2qr_autoconv_tend, Spack& qc2qr_accret_tend, Spack &qc2qi_collect_tend, Spack& qc2qi_hetero_freeze_tend,
+    Spack& qc2qr_autoconv_tend, Spack& qc2qr_accret_tend, Spack &qc2qi_collect_tend, Spack& qc2qi_immers_freeze_tend,
     Spack& qc2qr_ice_shed_tend, Spack& qc2qi_berg_tend, Spack& qi2qv_sublim_tend, Spack& qv2qi_vapdep_tend,
     Spack& qcheti_cnt, Spack& qicnt, const bool& use_hetfrz_classnuc, const Smask& context = Smask(true),
     const Spack& cld_frac_l = Spack(), const Spack& cld_frac_i = Spack(), const P3Runtime& runtime_options = {} );
@@ -749,7 +749,7 @@ struct Functions
   KOKKOS_FUNCTION
   static void ice_water_conservation(
     const Spack& qi,const Spack& qv2qi_vapdep_tend,const Spack& qv2qi_nucleat_tend,const Spack& qc2qi_berg_tend, const Spack &qr2qi_collect_tend,
-    const Spack &qc2qi_collect_tend,const Spack& qr2qi_immers_freeze_tend,const Spack& qc2qi_hetero_freeze_tend,const Scalar dt,
+    const Spack &qc2qi_collect_tend,const Spack& qr2qi_immers_freeze_tend,const Spack& qc2qi_immers_freeze_tend,const Scalar dt,
     Spack &qinuc_cnt, Spack &qcheti_cnt, Spack &qicnt,
     Spack& qi2qv_sublim_tend, Spack& qi2qr_melt_tend, const bool& use_hetfrz_classnuc,
     const Smask& context = Smask(true) );
@@ -788,7 +788,7 @@ struct Functions
   KOKKOS_FUNCTION
   static void cldliq_immersion_freezing(const Spack& T_atm, const Spack& lamc,
     const Spack& mu_c, const Spack& cdist1, const Spack& qc_incld, const Spack& inv_qc_relvar,
-    Spack& qc2qi_hetero_freeze_tend, Spack& nc2ni_immers_freeze_tend,
+    Spack& qc2qi_immers_freeze_tend, Spack& nc2ni_immers_freeze_tend,
     const P3Runtime& runtime_options,
     const Smask& context = Smask(true) );
 
@@ -869,7 +869,7 @@ struct Functions
   //-- ice-phase dependent processes:
   KOKKOS_FUNCTION
   static void update_prognostic_ice(
-    const Spack& qc2qi_hetero_freeze_tend, const Spack& qc2qi_collect_tend,
+    const Spack& qc2qi_immers_freeze_tend, const Spack& qc2qi_collect_tend,
     const Spack& qc2qr_ice_shed_tend,  const Spack& nc_collect_tend,  const Spack& nc2ni_immers_freeze_tend, const Spack& ncshdc,
     const Spack& qr2qi_collect_tend,  const Spack& nr_collect_tend,  const Spack& qr2qi_immers_freeze_tend, const Spack& nr2ni_immers_freeze_tend,
     const Spack& nr_ice_shed_tend, const Spack& qi2qr_melt_tend,  const Spack& ni2nr_melt_tend,  const Spack& qi2qv_sublim_tend,
@@ -1262,7 +1262,7 @@ struct Functions
     const uview_1d<Spack>& qc2qr_ice_shed,
     const uview_1d<Spack>& qc2qi_collect,
     const uview_1d<Spack>& qr2qi_collect,
-    const uview_1d<Spack>& qc2qi_hetero_freeze,
+    const uview_1d<Spack>& qc2qi_immers_freeze,
     const uview_1d<Spack>& qr2qi_immers_freeze,
     const uview_1d<Spack>& qi2qr_melt,
     const uview_1d<Spack>& pratot,
@@ -1355,7 +1355,7 @@ struct Functions
     const uview_2d<Spack>& qc2qr_ice_shed,
     const uview_2d<Spack>& qc2qi_collect,
     const uview_2d<Spack>& qr2qi_collect,
-    const uview_2d<Spack>& qc2qi_hetero_freeze,
+    const uview_2d<Spack>& qc2qi_immers_freeze,
     const uview_2d<Spack>& qr2qi_immers_freeze,
     const uview_2d<Spack>& qi2qr_melt,
     const uview_2d<Spack>& pratot,
