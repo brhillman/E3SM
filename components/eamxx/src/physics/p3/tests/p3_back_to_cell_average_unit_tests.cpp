@@ -61,7 +61,7 @@ enum class ScaleKind {
   X(ncautr,                   ScaleKind::LR)                                                    \
   X(qi2qv_sublim_tend,        ScaleKind::GLACIATED_OR_I)                                        \
   X(nr_ice_shed_tend,         ScaleKind::IL)                                                    \
-  X(qc2qi_hetero_freeze_tend, ScaleKind::IL)                                                    \
+  X(qc2qi_immers_freeze_tend, ScaleKind::IL)                                                    \
   X(qr2qi_collect_tend,       ScaleKind::IR)                                                    \
   X(qc2qr_ice_shed_tend,      ScaleKind::IL)                                                    \
   X(qi2qr_melt_tend,          ScaleKind::I)                                                     \
@@ -102,7 +102,7 @@ enum class ScaleKind {
   X(ncautr)                                                                                      \
   X(qi2qv_sublim_tend)                                                                           \
   X(nr_ice_shed_tend)                                                                            \
-  X(qc2qi_hetero_freeze_tend)                                                                    \
+  X(qc2qi_immers_freeze_tend)                                                                    \
   X(qr2qi_collect_tend)                                                                          \
   X(qc2qr_ice_shed_tend)                                                                         \
   X(qi2qr_melt_tend)                                                                             \
@@ -255,7 +255,7 @@ struct UnitWrap::UnitTest<D>::TestP3BackToCellAverage : public UnitWrap::UnitTes
         qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend,
         nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend,
         nr_selfcollect_tend, nr_evap_tend, ncautr,
-        qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_hetero_freeze_tend,
+        qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend,
         qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend,
         qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
         nc_collect_tend, ncshdc, nc2ni_immers_freeze_tend,
@@ -388,7 +388,7 @@ struct UnitWrap::UnitTest<D>::TestP3BackToCellAverage : public UnitWrap::UnitTes
         qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend,
         nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend,
         nr_selfcollect_tend, nr_evap_tend, ncautr,
-        qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_hetero_freeze_tend,
+        qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend,
         qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend,
         qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
         nc_collect_tend, ncshdc, nc2ni_immers_freeze_tend,

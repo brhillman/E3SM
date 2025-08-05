@@ -83,7 +83,7 @@ struct BackToCellAverageData
 
   // in/out
   Real qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend, nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend, nr_evap_tend, ncautr, qcnuc,
-       nc_nuceat_tend, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_hetero_freeze_tend, qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
+       nc_nuceat_tend, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend, qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
        nc_collect_tend, ncshdc, nc2ni_immers_freeze_tend, nr_collect_tend, ni_selfcollect_tend, qv2qi_vapdep_tend, nr2ni_immers_freeze_tend, ni_sublim_tend, qv2qi_nucleat_tend, ni_nucleat_tend,
        qc2qi_berg_tend;
   Real ncheti_cnt=0, qcheti_cnt=0, nicnt=0, qicnt=0, ninuc_cnt=0, qinuc_cnt=0;
@@ -93,7 +93,7 @@ struct BackToCellAverageData
   void randomize(std::mt19937_64& engine);
 
   PTD_RW_SCALARS_ONLY(31, qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend, nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend, nr_evap_tend, ncautr, qcnuc,
-                 nc_nuceat_tend, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_hetero_freeze_tend, qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
+                 nc_nuceat_tend, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend, qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend,
                  nc_collect_tend, ncshdc, nc2ni_immers_freeze_tend, nr_collect_tend, ni_selfcollect_tend, qv2qi_vapdep_tend, nr2ni_immers_freeze_tend, ni_sublim_tend, qv2qi_nucleat_tend, ni_nucleat_tend,
                  qc2qi_berg_tend);
 };
@@ -106,11 +106,11 @@ struct CloudWaterConservationData
   Real qc, dt;
 
   //output
-  Real qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend;
+  Real qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend;
   Real qcheti_cnt=0, qicnt=0;
   bool use_hetfrz_classnuc=false, context=true;
 
-  PTD_RW_SCALARS_ONLY(8, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_hetero_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend);
+  PTD_RW_SCALARS_ONLY(8, qc2qr_autoconv_tend, qc2qr_accret_tend, qc2qi_collect_tend, qc2qi_immers_freeze_tend, qc2qr_ice_shed_tend, qc2qi_berg_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend);
 };
 
 struct RainWaterConservationData
@@ -127,7 +127,7 @@ struct RainWaterConservationData
 struct IceWaterConservationData
 {
   //inputs
-  Real qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_hetero_freeze_tend, dt;
+  Real qi, qv2qi_vapdep_tend, qv2qi_nucleat_tend, qc2qi_berg_tend, qr2qi_collect_tend, qc2qi_collect_tend, qr2qi_immers_freeze_tend, qc2qi_immers_freeze_tend, dt;
   //output
   Real qi2qv_sublim_tend, qi2qr_melt_tend;
 
@@ -159,9 +159,9 @@ struct CldliqImmersionFreezingData
   Real T_atm, lamc, mu_c, cdist1, qc_incld, inv_qc_relvar;
 
   // output
-  Real qc2qi_hetero_freeze_tend, nc2ni_immers_freeze_tend;
+  Real qc2qi_immers_freeze_tend, nc2ni_immers_freeze_tend;
 
-  PTD_RW_SCALARS_ONLY(2, qc2qi_hetero_freeze_tend, nc2ni_immers_freeze_tend);
+  PTD_RW_SCALARS_ONLY(2, qc2qi_immers_freeze_tend, nc2ni_immers_freeze_tend);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -475,7 +475,7 @@ struct GetTimeSpacePhysVarsData
 struct P3UpdatePrognosticIceData
 {
   // Inputs
-  Real qc2qi_hetero_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend, qr2qi_immers_freeze_tend, nr2ni_immers_freeze_tend, nr_ice_shed_tend, qi2qr_melt_tend,
+  Real qc2qi_immers_freeze_tend, qc2qi_collect_tend, qc2qr_ice_shed_tend, nc_collect_tend, nc2ni_immers_freeze_tend, ncshdc, qr2qi_collect_tend, nr_collect_tend, qr2qi_immers_freeze_tend, nr2ni_immers_freeze_tend, nr_ice_shed_tend, qi2qr_melt_tend,
     ni2nr_melt_tend, qi2qv_sublim_tend, qv2qi_vapdep_tend, qv2qi_nucleat_tend, ni_nucleat_tend, ni_selfcollect_tend, ni_sublim_tend, qc2qi_berg_tend, inv_exner, latent_heat_sublim, latent_heat_fusion;
   bool do_predict_nc, log_wetgrowth;
   Real dt, nmltratio, rho_qm_cloud;
@@ -896,7 +896,7 @@ void p3_main_part2_host(
   Real* nevapr, Real* qr_evap_tend, Real* vap_liq_exchange, Real* vap_ice_exchange, Real* liq_ice_exchange,
   Real* qr2qv_evap, Real* qi2qv_sublim, Real* qc2qr_accret, Real* qc2qr_autoconv,
   Real* qv2qi_vapdep, Real* qc2qi_berg, Real* qc2qr_ice_shed, Real* qc2qi_collect, Real* qr2qi_collect,
-  Real* qc2qi_hetero_freeze, Real* qr2qi_immers_freeze, Real* qi2qr_melt,
+  Real* qc2qi_immers_freeze, Real* qr2qi_immers_freeze, Real* qi2qr_melt,
   Real* pratot, Real* prctot, bool* is_hydromet_present);
 
 void p3_main_part3_host(

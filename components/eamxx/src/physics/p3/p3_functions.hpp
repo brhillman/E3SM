@@ -306,7 +306,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<Pack> qc2qr_ice_shed;
     view_2d<Pack> qc2qi_collect;
     view_2d<Pack> qr2qi_collect;
-    view_2d<Pack> qc2qi_hetero_freeze;
+    view_2d<Pack> qc2qi_immers_freeze;
     view_2d<Pack> qr2qi_immers_freeze;
     view_2d<Pack> qc2qi_homfrz;
     view_2d<Pack> qr2qi_homfrz;
@@ -413,7 +413,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       Pack &qc2qr_accret_tend, Pack &qr2qv_evap_tend, Pack &qc2qr_autoconv_tend,
       Pack &nc_accret_tend, Pack &nc_selfcollect_tend, Pack &nc2nr_autoconv_tend,
       Pack &nr_selfcollect_tend, Pack &nr_evap_tend, Pack &ncautr, Pack &qi2qv_sublim_tend,
-      Pack &nr_ice_shed_tend, Pack &qc2qi_hetero_freeze_tend, Pack &qr2qi_collect_tend,
+      Pack &nr_ice_shed_tend, Pack &qc2qi_immers_freeze_tend, Pack &qr2qi_collect_tend,
       Pack &qc2qr_ice_shed_tend, Pack &qi2qr_melt_tend, Pack &qc2qi_collect_tend,
       Pack &qr2qi_immers_freeze_tend, Pack &ni2nr_melt_tend, Pack &nc_collect_tend,
       Pack &ncshdc, Pack &nc2ni_immers_freeze_tend, Pack &nr_collect_tend,
@@ -639,7 +639,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   KOKKOS_FUNCTION
   static void cloud_water_conservation(
       const Pack &qc, const Scalar dt, Pack &qc2qr_autoconv_tend, Pack &qc2qr_accret_tend,
-      Pack &qc2qi_collect_tend, Pack &qc2qi_hetero_freeze_tend, Pack &qc2qr_ice_shed_tend,
+      Pack &qc2qi_collect_tend, Pack &qc2qi_immers_freeze_tend, Pack &qc2qr_ice_shed_tend,
       Pack &qc2qi_berg_tend, Pack &qi2qv_sublim_tend, Pack &qv2qi_vapdep_tend, Pack &qcheti_cnt,
       Pack &qicnt, const bool &use_hetfrz_classnuc, const Mask &context = Mask(true),
       const Pack &cld_frac_l = Pack(), const Pack &cld_frac_i = Pack(),
@@ -658,7 +658,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const Pack &qi, const Pack &qv2qi_vapdep_tend, const Pack &qv2qi_nucleat_tend,
       const Pack &qc2qi_berg_tend, const Pack &qr2qi_collect_tend,
       const Pack &qc2qi_collect_tend, const Pack &qr2qi_immers_freeze_tend,
-      const Pack &qc2qi_hetero_freeze_tend, const Scalar dt, Pack &qinuc_cnt, Pack &qcheti_cnt,
+      const Pack &qc2qi_immers_freeze_tend, const Scalar dt, Pack &qinuc_cnt, Pack &qcheti_cnt,
       Pack &qicnt, Pack &qi2qv_sublim_tend, Pack &qi2qr_melt_tend,
       const bool &use_hetfrz_classnuc, const Mask &context = Mask(true));
 
@@ -691,7 +691,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   KOKKOS_FUNCTION
   static void cldliq_immersion_freezing(const Pack &T_atm, const Pack &lamc, const Pack &mu_c,
                                         const Pack &cdist1, const Pack &qc_incld,
-                                        const Pack &inv_qc_relvar, Pack &qc2qi_hetero_freeze_tend,
+                                        const Pack &inv_qc_relvar, Pack &qc2qi_immers_freeze_tend,
                                         Pack &nc2ni_immers_freeze_tend,
                                         const P3Runtime &runtime_options,
                                         const Mask &context = Mask(true));
@@ -771,7 +771,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   //-- ice-phase dependent processes:
   KOKKOS_FUNCTION
   static void update_prognostic_ice(
-      const Pack &qc2qi_hetero_freeze_tend, const Pack &qc2qi_collect_tend,
+      const Pack &qc2qi_immers_freeze_tend, const Pack &qc2qi_collect_tend,
       const Pack &qc2qr_ice_shed_tend, const Pack &nc_collect_tend,
       const Pack &nc2ni_immers_freeze_tend, const Pack &ncshdc, const Pack &qr2qi_collect_tend,
       const Pack &nr_collect_tend, const Pack &qr2qi_immers_freeze_tend,
@@ -1065,7 +1065,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_1d<Pack> &qc2qr_autoconv, const uview_1d<Pack> &qv2qi_vapdep,
       const uview_1d<Pack> &qc2qi_berg, const uview_1d<Pack> &qc2qr_ice_shed,
       const uview_1d<Pack> &qc2qi_collect, const uview_1d<Pack> &qr2qi_collect,
-      const uview_1d<Pack> &qc2qi_hetero_freeze, const uview_1d<Pack> &qr2qi_immers_freeze,
+      const uview_1d<Pack> &qc2qi_immers_freeze, const uview_1d<Pack> &qr2qi_immers_freeze,
       const uview_1d<Pack> &qi2qr_melt, const uview_1d<Pack> &pratot,
       const uview_1d<Pack> &prctot, bool &is_hydromet_present, const Int &nk,
       const P3Runtime &runtime_options);
@@ -1108,7 +1108,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_2d<Pack> &qc2qr_autoconv, const uview_2d<Pack> &qv2qi_vapdep,
       const uview_2d<Pack> &qc2qi_berg, const uview_2d<Pack> &qc2qr_ice_shed,
       const uview_2d<Pack> &qc2qi_collect, const uview_2d<Pack> &qr2qi_collect,
-      const uview_2d<Pack> &qc2qi_hetero_freeze, const uview_2d<Pack> &qr2qi_immers_freeze,
+      const uview_2d<Pack> &qc2qi_immers_freeze, const uview_2d<Pack> &qr2qi_immers_freeze,
       const uview_2d<Pack> &qi2qr_melt, const uview_2d<Pack> &pratot,
       const uview_2d<Pack> &prctot, const uview_1d<bool> &is_nucleat_possible,
       const uview_1d<bool> &is_hydromet_present, const P3Runtime &runtime_options);
