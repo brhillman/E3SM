@@ -104,6 +104,10 @@ void Functions<S,D>
   const uview_1d<Spack>& qc2qi_immers_freeze,
   const uview_1d<Spack>& qr2qi_immers_freeze,
   const uview_1d<Spack>& qi2qr_melt,
+  const uview_1d<Spack>& nc2ni_immers_freeze,
+  const uview_1d<Spack>& nr2ni_immers_freeze,
+  const uview_1d<Spack>& ni_nucleat,
+  const uview_1d<Spack>& qv2qi_nucleat,
   const uview_1d<Spack>& pratot,
   const uview_1d<Spack>& prctot,
   bool& hydrometeorsPresent, const Int& nk,
@@ -529,6 +533,10 @@ void Functions<S,D>
       qc2qi_immers_freeze(k).set(not_skip_all, qc2qi_immers_freeze_tend);
       qr2qi_immers_freeze(k).set(not_skip_all, qr2qi_immers_freeze_tend);
       qi2qr_melt(k).set(not_skip_all, qi2qr_melt_tend);
+      nc2ni_immers_freeze(k).set(not_skip_all, nc2ni_immers_freeze_tend);
+      nr2ni_immers_freeze(k).set(not_skip_all, nr2ni_immers_freeze_tend);
+      ni_nucleat(k).set(not_skip_all, ni_nucleat_tend);
+      qv2qi_nucleat(k).set(not_skip_all, qv2qi_nucleat_tend);
     }
 
     // clipping for small hydrometeor values

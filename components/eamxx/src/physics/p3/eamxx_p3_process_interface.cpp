@@ -137,15 +137,19 @@ void P3Microphysics::set_grids(const std::shared_ptr<const GridsManager> grids_m
     add_field<Computed>("qc2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("qr2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
-    add_field<Computed>("qr2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qi2qr_melt", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qi_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
-    add_field<Computed>("nc2ni_homfrz", scalar3d_layout_mid, 1/s,  grid_name, ps);
-    add_field<Computed>("nr2ni_homfrz", scalar3d_layout_mid, 1/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_homfrz", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nr2ni_homfrz", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nr2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("ni_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("qv2qi_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
   }
 
   // History Only: (all fields are just outputs and are really only meant for I/O purposes)
@@ -414,9 +418,9 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qi_collect = get_field_out("qc2qi_collect").get_view<Pack**>();
     history_only.qr2qi_collect = get_field_out("qr2qi_collect").get_view<Pack**>();
     history_only.qc2qi_immers_freeze = get_field_out("qc2qi_immers_freeze").get_view<Pack**>();
+    history_only.qr2qi_immers_freeze = get_field_out("qr2qi_immers_freeze").get_view<Pack**>();
     history_only.qc2qi_homfrz = get_field_out("qc2qi_homfrz").get_view<Pack**>();
     history_only.qr2qi_homfrz = get_field_out("qr2qi_homfrz").get_view<Pack**>();
-    history_only.qr2qi_immers_freeze = get_field_out("qr2qi_immers_freeze").get_view<Pack**>();
     history_only.qi2qr_melt = get_field_out("qi2qr_melt").get_view<Pack**>();
     history_only.qr_sed = get_field_out("qr_sed").get_view<Pack**>();
     history_only.qc_sed = get_field_out("qc_sed").get_view<Pack**>();
@@ -424,6 +428,10 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     // number concentrations
     history_only.nc2ni_homfrz = get_field_out("nc2ni_homfrz").get_view<Pack**>();
     history_only.nr2ni_homfrz = get_field_out("nr2ni_homfrz").get_view<Pack**>();
+    history_only.nc2ni_immers_freeze = get_field_out("nc2ni_immers_freeze").get_view<Pack**>();
+    history_only.nr2ni_immers_freeze = get_field_out("nr2ni_immers_freeze").get_view<Pack**>();
+    history_only.ni_nucleat_tend = get_field_out("ni_nucleat_tend").get_view<Pack**>();
+    history_only.qv2qi_nucleat_tend = get_field_out("qv2qi_nucleat_tend").get_view<Pack**>();
   } else {
     // if not, let's use the unused buffer
     history_only.qr2qv_evap = m_buffer.unused;
@@ -436,15 +444,19 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qi_collect = m_buffer.unused;
     history_only.qr2qi_collect = m_buffer.unused;
     history_only.qc2qi_immers_freeze = m_buffer.unused;
+    history_only.qr2qi_immers_freeze = m_buffer.unused;
     history_only.qc2qi_homfrz = m_buffer.unused;
     history_only.qr2qi_homfrz = m_buffer.unused;
-    history_only.qr2qi_immers_freeze = m_buffer.unused;
     history_only.qi2qr_melt = m_buffer.unused;
     history_only.qr_sed = m_buffer.unused;
     history_only.qc_sed = m_buffer.unused;
     history_only.qi_sed = m_buffer.unused;
     history_only.nc2ni_homfrz = m_buffer.unused;
     history_only.nr2ni_homfrz = m_buffer.unused;
+    history_only.nc2ni_immers_freeze = m_buffer.unused;
+    history_only.nr2ni_immers_freeze = m_buffer.unused;
+    history_only.ni_nucleat_tend = m_buffer.unused;
+    history_only.qv2qi_nucleat_tend = m_buffer.unused;
   }
 #ifdef SCREAM_P3_SMALL_KERNELS
   // Temporaries

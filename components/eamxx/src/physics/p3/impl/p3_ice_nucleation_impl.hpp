@@ -37,10 +37,12 @@ void Functions<S,D>
    Spack dum{0.0}, N_nuc{0.0}, Q_nuc{0.0};
 
    if (any_if_not_log.any()) {
+     // Cooper parameterization
      dum = sp(0.005)*exp(sp(deposition_nucleation_exponent)*(tmelt-temp))*sp(1.0e3)*inv_rho;
 
      dum = min(dum, sp(1.0e5)*inv_rho);
 
+     // N_nuc is number per second; total nucleated would be N_nuc * dt
      N_nuc = max(zero, (dum-ni)*inv_dt);
 
      const auto n_nuc_ge_nsmall = N_nuc >= nsmall && context;

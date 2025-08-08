@@ -311,6 +311,10 @@ struct Functions
     view_2d<Spack> nc2ni_homfrz;
     view_2d<Spack> nr2ni_homfrz;
     view_2d<Spack> qr2qi_immers_freeze;
+    view_2d<Spack> nc2ni_immers_freeze;
+    view_2d<Spack> nr2ni_immers_freeze;
+    view_2d<Spack> ni_nucleat_tend;
+    view_2d<Spack> qv2qi_nucleat_tend;
     view_2d<Spack> qi2qr_melt;
     view_2d<Spack> qr_sed;
     view_2d<Spack> qc_sed;
@@ -678,7 +682,7 @@ struct Functions
     const uview_1d<const Spack>& T_atm,
     const uview_1d<const Spack>& inv_exner,
     const MemberType& team,
-    const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir,
+    const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir, const Scalar& inv_dt,
     const uview_1d<Spack>& qc,
     const uview_1d<Spack>& nc,
     const uview_1d<Spack>& qr,
@@ -697,7 +701,7 @@ struct Functions
   static void homogeneous_freezing_disp(
     const uview_2d<const Spack>& T_atm,
     const uview_2d<const Spack>& inv_exner,
-    const Int& nj, const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir,
+    const Int& nj, const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir, const Int& inv_dt,
     const uview_2d<Spack>& qc,
     const uview_2d<Spack>& nc,
     const uview_2d<Spack>& qr,
@@ -1265,6 +1269,10 @@ struct Functions
     const uview_1d<Spack>& qc2qi_immers_freeze,
     const uview_1d<Spack>& qr2qi_immers_freeze,
     const uview_1d<Spack>& qi2qr_melt,
+    const uview_1d<Spack>& nc2ni_immers_freeze,
+    const uview_1d<Spack>& nr2ni_immers_freeze,
+    const uview_1d<Spack>& ni_nucleat_tend,
+    const uview_1d<Spack>& qv2qi_nucleat_tend,
     const uview_1d<Spack>& pratot,
     const uview_1d<Spack>& prctot,
     bool& is_hydromet_present,
@@ -1358,6 +1366,10 @@ struct Functions
     const uview_2d<Spack>& qc2qi_immers_freeze,
     const uview_2d<Spack>& qr2qi_immers_freeze,
     const uview_2d<Spack>& qi2qr_melt,
+    const uview_2d<Spack>& nc2ni_immers_freeze,
+    const uview_2d<Spack>& nr2ni_immers_freeze,
+    const uview_2d<Spack>& ni_nucleat_tend,
+    const uview_2d<Spack>& qv2qi_nucleat_tend,
     const uview_2d<Spack>& pratot,
     const uview_2d<Spack>& prctot,
     const uview_1d<bool>& is_nucleat_possible,

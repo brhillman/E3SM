@@ -211,7 +211,7 @@ void Functions<S,D>
   const uview_1d<const Spack>& T_atm,
   const uview_1d<const Spack>& inv_exner,
   const MemberType& team,
-  const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir,
+  const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir, const Scalar& inv_dt,
   const uview_1d<Spack>& qc,
   const uview_1d<Spack>& nc,
   const uview_1d<Spack>& qr,
@@ -252,22 +252,24 @@ void Functions<S,D>
     const auto qc_ge_small   = range_mask && t_lt_homogf && qc(pk) >= qsmall;
     const auto qr_ge_small   = range_mask && t_lt_homogf && qr(pk) >= qsmall;
 
+    // Note that Nc_nuc is apparently the total number nucleated in this timestep; to get
+    // the tendency, would need to multiply by inv_dt
     Spack Qc_nuc(qc(pk)), Qr_nuc(qr(pk)), Nc_nuc(max(nc(pk), nsmall)), Nr_nuc(max(nr(pk), nsmall));
 
     qm(pk).set(qc_ge_small, qm(pk) + Qc_nuc);
     qi(pk).set(qc_ge_small, qi(pk) + Qc_nuc);
-    qc2qi_homfrz(pk).set(qc_ge_small, Qc_nuc);
+    qc2qi_homfrz(pk).set(qc_ge_small, Qc_nuc * inv_dt);
     bm(pk).set(qc_ge_small, bm(pk) + Qc_nuc*inv_rho_rimeMax);
     ni(pk).set(qc_ge_small, ni(pk) + Nc_nuc);
-    nc2ni_homfrz(pk).set(qc_ge_small, Nc_nuc);
+    nc2ni_homfrz(pk).set(qc_ge_small, Nc_nuc * inv_dt);
     th_atm(pk).set   (qc_ge_small, th_atm(pk) + inv_exner(pk)*Qc_nuc*latice*inv_cp);
 
     qm(pk).set(qr_ge_small, qm(pk) + Qr_nuc);
     qi(pk).set(qr_ge_small, qi(pk) + Qr_nuc);
-    qr2qi_homfrz(pk).set(qr_ge_small, Qr_nuc);
+    qr2qi_homfrz(pk).set(qr_ge_small, Qr_nuc * inv_dt);
     bm(pk).set(qr_ge_small, bm(pk) + Qr_nuc*inv_rho_rimeMax);
     ni(pk).set(qr_ge_small, ni(pk) + Nr_nuc);
-    nr2ni_homfrz(pk).set(qr_ge_small, Nr_nuc);
+    nr2ni_homfrz(pk).set(qr_ge_small, Nr_nuc * inv_dt);
     th_atm(pk).set   (qr_ge_small, th_atm(pk) + inv_exner(pk)*Qr_nuc*latice*inv_cp);
 
     qc(pk).set(qc_ge_small, 0);
