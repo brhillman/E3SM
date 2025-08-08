@@ -313,6 +313,10 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<Pack> nc2ni_homfrz;
     view_2d<Pack> nr2ni_homfrz;
     view_2d<Pack> qi2qr_melt;
+    view_2d<Pack> nc2ni_immers_freeze;
+    view_2d<Pack> nr2ni_immers_freeze;
+    view_2d<Pack> ni_nucleat_tend;
+    view_2d<Pack> qv2qi_nucleat_tend;
     view_2d<Pack> qr_sed;
     view_2d<Pack> qc_sed;
     view_2d<Pack> qi_sed;
@@ -601,7 +605,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   KOKKOS_FUNCTION
   static void homogeneous_freezing(const uview_1d<const Pack> &T_atm,
                                    const uview_1d<const Pack> &inv_exner, const MemberType &team,
-                                   const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir,
+                                   const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const Scalar &inv_dt
                                    const uview_1d<Pack> &qc, const uview_1d<Pack> &nc,
                                    const uview_1d<Pack> &qr, const uview_1d<Pack> &nr,
                                    const uview_1d<Pack> &qi, const uview_1d<Pack> &ni,
@@ -613,8 +617,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 #ifdef SCREAM_P3_SMALL_KERNELS
   static void homogeneous_freezing_disp(
       const uview_2d<const Pack> &T_atm, const uview_2d<const Pack> &inv_exner, const Int &nj,
-      const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const uview_2d<Pack> &qc,
-      const uview_2d<Pack> &nc, const uview_2d<Pack> &qr, const uview_2d<Pack> &nr,
+      const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const Int &inv_dt,
+      const uview_2d<Pack> &qc, const uview_2d<Pack> &nc, const uview_2d<Pack> &qr, const uview_2d<Pack> &nr,
       const uview_2d<Pack> &qi, const uview_2d<Pack> &ni, const uview_2d<Pack> &qm,
       const uview_2d<Pack> &bm, 
       const uview_2d<Pack>& qc2qi_homfrz, const uview_2d<Pack>& qr2qi_homfrz,
@@ -1066,7 +1070,10 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_1d<Pack> &qc2qi_berg, const uview_1d<Pack> &qc2qr_ice_shed,
       const uview_1d<Pack> &qc2qi_collect, const uview_1d<Pack> &qr2qi_collect,
       const uview_1d<Pack> &qc2qi_immers_freeze, const uview_1d<Pack> &qr2qi_immers_freeze,
-      const uview_1d<Pack> &qi2qr_melt, const uview_1d<Pack> &pratot,
+      const uview_1d<Pack> &qi2qr_melt, 
+      const uview_1d<Pack> &nc2ni_immers_freeze, const uview_1d<Pack> &nr2ni_immers_freeze,
+      const uview_1d<Pack> &ni_nucleat_tend, const uview_1d<Pack> &qv2qi_nucleat_tend,
+      const uview_1d<Pack> &pratot,
       const uview_1d<Pack> &prctot, bool &is_hydromet_present, const Int &nk,
       const P3Runtime &runtime_options);
 
@@ -1109,7 +1116,10 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_2d<Pack> &qc2qi_berg, const uview_2d<Pack> &qc2qr_ice_shed,
       const uview_2d<Pack> &qc2qi_collect, const uview_2d<Pack> &qr2qi_collect,
       const uview_2d<Pack> &qc2qi_immers_freeze, const uview_2d<Pack> &qr2qi_immers_freeze,
-      const uview_2d<Pack> &qi2qr_melt, const uview_2d<Pack> &pratot,
+      const uview_2d<Pack> &qi2qr_melt, 
+      const uview_2d<Pack>& nc2ni_immers_freeze, const uview_2d<Pack>& nr2ni_immers_freeze,
+      const uview_2d<Pack>& ni_nucleat_tend, const uview_2d<Pack>& qv2qi_nucleat_tend,
+      const uview_2d<Pack> &pratot,
       const uview_2d<Pack> &prctot, const uview_1d<bool> &is_nucleat_possible,
       const uview_1d<bool> &is_hydromet_present, const P3Runtime &runtime_options);
 #endif
