@@ -1,6 +1,11 @@
 add_library(eamxx_physics INTERFACE)
 
 # Add all physics parametrizations subfolders
+# Needed to move mam above p3 because p3 uses nucleate_ice.hpp, which depends on
+# mam4xx and haero, and haero includes .hpp files generated from .hpp.in using configure_file()
+if (SCREAM_ENABLE_MAM)
+  add_subdirectory(mam)
+endif()
 add_subdirectory(p3)
 if (SCREAM_DOUBLE_PRECISION)
   add_subdirectory(rrtmgp)
@@ -16,7 +21,4 @@ add_subdirectory(cld_fraction)
 add_subdirectory(spa)
 add_subdirectory(spc)
 add_subdirectory(nudging)
-if (SCREAM_ENABLE_MAM)
-  add_subdirectory(mam)
-endif()
 add_subdirectory(gw)

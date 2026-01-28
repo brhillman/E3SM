@@ -223,6 +223,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<const Pack> dz;
     // Pressure thickness [Pa]
     view_2d<const Pack> dpres;
+    // Pressure velocity
+    view_2d<const Pack> omega;
     // Exner expression
     view_2d<const Pack> inv_exner;
     // qv from previous step [kg/kg]
@@ -320,6 +322,10 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<Pack> qr_sed;
     view_2d<Pack> qc_sed;
     view_2d<Pack> qi_sed;
+    view_2d<Pack> nc2ni_nihf;
+    view_2d<Pack> nc2ni_niimm;
+    view_2d<Pack> nc2ni_nidep;
+    view_2d<Pack> nc2ni_nimey;
   };
 
   // This struct stores kokkos views for the lookup tables needed in p3_main()
@@ -700,6 +706,14 @@ template <typename ScalarT, typename DeviceT> struct Functions {
                                         const P3Runtime &runtime_options,
                                         const Mask &context = Mask(true));
 
+  // LP05 homogeneous sulfate freezing, immersion freezing, and meyers deposition freezing
+  KOKKOS_FUNCTION
+  static void nucleate_ice_lp05(const Spack& T_atm, const Spack& pres,
+    const Spack& qv, const Spack& omega, const Spack& rho, const Spack& inv_qc_relvar,
+    Spack& nc2ni_nihf, Spack& nc2ni_niimm, Spack& nc2ni_nidep, Spack& nc2ni_nimey,
+    const P3Runtime& runtime_options,
+    const Smask& context = Smask(true) );
+
   // Computes the immersion freezing of rain
   KOKKOS_FUNCTION
   static void rain_immersion_freezing(const Pack &T_atm, const Pack &lamr, const Pack &mu_r,
@@ -1047,7 +1061,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_1d<const Pack> &ni_activated, const uview_1d<const Pack> &inv_qc_relvar,
       const uview_1d<const Pack> &cld_frac_i, const uview_1d<const Pack> &cld_frac_l,
       const uview_1d<const Pack> &cld_frac_r, const uview_1d<const Pack> &qv_prev,
-      const uview_1d<const Pack> &t_prev, const uview_1d<Pack> &T_atm, const uview_1d<Pack> &rho,
+      const uview_1d<const Pack> &t_prev, const uview_1d<const Pack> &omega, const uview_1d<Pack> &T_atm, const uview_1d<Pack> &rho,
       const uview_1d<Pack> &inv_rho, const uview_1d<Pack> &qv_sat_l,
       const uview_1d<Pack> &qv_sat_i, const uview_1d<Pack> &qv_supersat_i,
       const uview_1d<Pack> &rhofacr, const uview_1d<Pack> &rhofaci, const uview_1d<Pack> &acn,
@@ -1073,6 +1087,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_1d<Pack> &qi2qr_melt, 
       const uview_1d<Pack> &nc2ni_immers_freeze, const uview_1d<Pack> &nr2ni_immers_freeze,
       const uview_1d<Pack> &ni_nucleat_tend, const uview_1d<Pack> &qv2qi_nucleat_tend,
+      const uview_1d<Pack>& nc2ni_nihf, const uview_1d<Pack>& nc2ni_niimm,
+      const uview_1d<Pack>& nc2ni_nidep, const uview_1d<Pack>& nc2ni_nimey,
       const uview_1d<Pack> &pratot,
       const uview_1d<Pack> &prctot, bool &is_hydromet_present, const Int &nk,
       const P3Runtime &runtime_options);
@@ -1093,7 +1109,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_2d<const Pack> &ni_activated, const uview_2d<const Pack> &inv_qc_relvar,
       const uview_2d<const Pack> &cld_frac_i, const uview_2d<const Pack> &cld_frac_l,
       const uview_2d<const Pack> &cld_frac_r, const uview_2d<const Pack> &qv_prev,
-      const uview_2d<const Pack> &t_prev, const uview_2d<Pack> &T_atm, const uview_2d<Pack> &rho,
+      const uview_2d<const Pack> &t_prev, const uview_2d<const Pack> &omega, const uview_2d<Pack> &T_atm, const uview_2d<Pack> &rho,
       const uview_2d<Pack> &inv_rho, const uview_2d<Pack> &qv_sat_l,
       const uview_2d<Pack> &qv_sat_i, const uview_2d<Pack> &qv_supersat_i,
       const uview_2d<Pack> &rhofacr, const uview_2d<Pack> &rhofaci, const uview_2d<Pack> &acn,
@@ -1119,6 +1135,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
       const uview_2d<Pack> &qi2qr_melt, 
       const uview_2d<Pack>& nc2ni_immers_freeze, const uview_2d<Pack>& nr2ni_immers_freeze,
       const uview_2d<Pack>& ni_nucleat_tend, const uview_2d<Pack>& qv2qi_nucleat_tend,
+      const uview_2d<Pack>& nc2ni_nihf, const uview_2d<Pack>& nc2ni_niimm,
+      const uview_2d<Pack>& nc2ni_nidep, const uview_2d<Pack>& nc2ni_nimey,
       const uview_2d<Pack> &pratot,
       const uview_2d<Pack> &prctot, const uview_1d<bool> &is_nucleat_possible,
       const uview_1d<bool> &is_hydromet_present, const P3Runtime &runtime_options);
@@ -1291,5 +1309,8 @@ constexpr ScalarT Functions<ScalarT, DeviceT>::P3C::lookup_table_1a_dum1_c;
 #include "p3_table_ice_impl.hpp"
 #include "p3_update_prognostics_impl.hpp"
 #include "p3_upwind_impl.hpp"
+#include "p3_nucleate_ice_lp05.hpp"
+#if defined(EAMXX_ENABLE_GPU) && !defined(KOKKOS_ENABLE_CUDA_RELOCATABLE_DEVICE_CODE) \
+                                && !defined(KOKKOS_ENABLE_HIP_RELOCATABLE_DEVICE_CODE)
 #endif // GPU && !KOKKOS_ENABLE_*_RELOCATABLE_DEVICE_CODE
 #endif // P3_FUNCTIONS_HPP
