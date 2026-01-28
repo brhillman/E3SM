@@ -7,6 +7,8 @@
 
 #include "ekat/kokkos/ekat_subview_utils.hpp"
 
+#include "mam4xx/nucleate_ice.hpp"
+
 namespace scream {
 namespace p3 {
 
@@ -49,6 +51,7 @@ void Functions<S,D>
   const uview_1d<const Spack>& cld_frac_r,
   const uview_1d<const Spack>& qv_prev,
   const uview_1d<const Spack>& t_prev,
+  const uview_1d<const Spack>& omega,
   const uview_1d<Spack>& T_atm,
   const uview_1d<Spack>& rho,
   const uview_1d<Spack>& inv_rho,
@@ -108,6 +111,10 @@ void Functions<S,D>
   const uview_1d<Spack>& nr2ni_immers_freeze,
   const uview_1d<Spack>& ni_nucleat,
   const uview_1d<Spack>& qv2qi_nucleat,
+  const uview_1d<Spack>& nc2ni_nihf,
+  const uview_1d<Spack>& nc2ni_niimm,
+  const uview_1d<Spack>& nc2ni_nidep,
+  const uview_1d<Spack>& nc2ni_nimey,
   const uview_1d<Spack>& pratot,
   const uview_1d<Spack>& prctot,
   bool& hydrometeorsPresent, const Int& nk,
@@ -185,7 +192,11 @@ void Functions<S,D>
       nr2ni_immers_freeze_tend  (0), // immersion freezing rain
       ni_sublim_tend   (0), // change in ice number from sublimation
       qc_growth_rate  (0), // wet growth rate
-
+      // lp05
+      nc2ni_nihf_tend(0),
+      nc2ni_niimm_tend(0),
+      nc2ni_nidep_tend(0),
+      nc2ni_nimey_tend(0),
       // initialize time/space varying physical variables
       mu      (0), // TODO(doc)
       dv      (0), // TODO(doc)
@@ -362,6 +373,10 @@ void Functions<S,D>
               T_atm(k), lamc(k), mu_c(k), cdist1(k), qc_incld(k),
               inv_qc_relvar(k), qc2qi_immers_freeze_tend,
               nc2ni_immers_freeze_tend, runtime_options, not_skip_micro);
+          // Homogeneous freezing of sulfate solute, immersion freezing, deposition, meyers freezing
+          nucleate_ice_lp05(
+              T_atm(k), pres(k), qv(k), omega(k), qc_incld(k), rho(k), nc2ni_nihf_tend, nc2ni_niimm_tend, nc2ni_nidep_tend, nc2ni_nimey_tend,
+              runtime_options, not_skip_micro);
         }
 
         // for future: get rid of log statements below for rain freezing
@@ -537,6 +552,10 @@ void Functions<S,D>
       nr2ni_immers_freeze(k).set(not_skip_all, nr2ni_immers_freeze_tend);
       ni_nucleat(k).set(not_skip_all, ni_nucleat_tend);
       qv2qi_nucleat(k).set(not_skip_all, qv2qi_nucleat_tend);
+      nc2ni_nihf(k).set(not_skip_all, nc2ni_nihf_tend);
+      nc2ni_niimm(k).set(not_skip_all, nc2ni_niimm_tend);
+      nc2ni_nidep(k).set(not_skip_all, nc2ni_nidep_tend);
+      nc2ni_nimey(k).set(not_skip_all, nc2ni_nimey_tend);
     }
 
     // clipping for small hydrometeor values

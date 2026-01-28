@@ -164,6 +164,7 @@ Int Functions<S,D>
 
     // Get single-column subviews of all inputs, shouldn't need any i-indexing
     // after this.
+    const auto oomega              = ekat::subview(diagnostic_inputs.omega, i);
     const auto opres               = ekat::subview(diagnostic_inputs.pres, i);
     const auto odz                 = ekat::subview(diagnostic_inputs.dz, i);
     const auto onc_nuceat_tend     = ekat::subview(diagnostic_inputs.nc_nuceat_tend, i);
@@ -224,6 +225,10 @@ Int Functions<S,D>
     const auto oqi_sed             = ekat::subview(history_only.qi_sed, i);
     const auto oqv_prev            = ekat::subview(diagnostic_inputs.qv_prev, i);
     const auto ot_prev             = ekat::subview(diagnostic_inputs.t_prev, i);
+    const auto onc2ni_nihf = ekat::subview(history_only.nc2ni_nihf,i);
+    const auto onc2ni_niimm = ekat::subview(history_only.nc2ni_niimm,i);
+    const auto onc2ni_nidep = ekat::subview(history_only.nc2ni_nidep,i);
+    const auto onc2ni_nimey = ekat::subview(history_only.nc2ni_nimey,i);
 
     // Inputs for the heteogeneous freezing
     const auto ohetfrz_immersion_nucleation_tend  = ekat::subview(diagnostic_inputs.hetfrz_immersion_nucleation_tend, i);
@@ -275,7 +280,7 @@ Int Functions<S,D>
       ohetfrz_immersion_nucleation_tend, ohetfrz_contact_nucleation_tend, ohetfrz_deposition_nucleation_tend,
       lookup_tables.dnu_table_vals, lookup_tables.ice_table_vals, lookup_tables.collect_table_vals, lookup_tables.revap_table_vals, opres, odpres, odz, onc_nuceat_tend, oinv_exner,
       exner, inv_cld_frac_l, inv_cld_frac_i, inv_cld_frac_r, oni_activated, oinv_qc_relvar, ocld_frac_i,
-      ocld_frac_l, ocld_frac_r, oqv_prev, ot_prev, T_atm, rho, inv_rho, qv_sat_l, qv_sat_i, qv_supersat_i, rhofacr, rhofaci, acn,
+      ocld_frac_l, ocld_frac_r, oqv_prev, ot_prev, oomega, T_atm, rho, inv_rho, qv_sat_l, qv_sat_i, qv_supersat_i, rhofacr, rhofaci, acn,
       oqv, oth, oqc, onc, oqr, onr, oqi, oni, oqm, obm,
       qc_incld, qr_incld, qi_incld, qm_incld, nc_incld,
       nr_incld, ni_incld, bm_incld, mu_c, nu, lamc, cdist, cdist1, cdistr,
@@ -284,6 +289,7 @@ Int Functions<S,D>
       oqr2qv_evap, oqi2qv_sublim, oqc2qr_accret, oqc2qr_autoconv, oqv2qi_vapdep,
       oqc2qi_berg, oqc2qr_ice_shed, oqc2qi_collect, oqr2qi_collect, oqc2qi_immers_freeze, oqr2qi_immers_freeze, oqi2qr_melt,
       onc2ni_immers_freeze, onr2ni_immers_freeze, oni_nucleat_tend, oqv2qi_nucleat_tend,
+      onc2ni_nihf, onc2ni_niimm, onc2ni_nidep, onc2ni_nimey,
       pratot, prctot, hydrometeorsPresent, nk, runtime_options);
 
     //NOTE: At this point, it is possible to have negative (but small) nc, nr, ni.  This is not

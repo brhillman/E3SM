@@ -219,6 +219,8 @@ struct Functions
     view_2d<const Spack> dz;
     // Pressure thickness [Pa]
     view_2d<const Spack> dpres;
+    // Pressure velocity
+    view_2d<const Spack> omega;
     // Exner expression
     view_2d<const Spack> inv_exner;
     // qv from previous step [kg/kg]
@@ -319,6 +321,10 @@ struct Functions
     view_2d<Spack> qr_sed;
     view_2d<Spack> qc_sed;
     view_2d<Spack> qi_sed;
+    view_2d<Spack> nc2ni_nihf;
+    view_2d<Spack> nc2ni_niimm;
+    view_2d<Spack> nc2ni_nidep;
+    view_2d<Spack> nc2ni_nimey;
   };
 
   // This struct stores kokkos views for the lookup tables needed in p3_main()
@@ -796,6 +802,14 @@ struct Functions
     const P3Runtime& runtime_options,
     const Smask& context = Smask(true) );
 
+  // LP05 homogeneous sulfate freezing, immersion freezing, and meyers deposition freezing
+  KOKKOS_FUNCTION
+  static void nucleate_ice_lp05(const Spack& T_atm, const Spack& pres,
+    const Spack& qv, const Spack& omega, const Spack& rho, const Spack& inv_qc_relvar,
+    Spack& nc2ni_nihf, Spack& nc2ni_niimm, Spack& nc2ni_nidep, Spack& nc2ni_nimey,
+    const P3Runtime& runtime_options,
+    const Smask& context = Smask(true) );
+
   // Computes the immersion freezing of rain
   KOKKOS_FUNCTION
   static void rain_immersion_freezing(const Spack& T_atm, const Spack& lamr,
@@ -1214,6 +1228,7 @@ struct Functions
     const uview_1d<const Spack>& cld_frac_r,
     const uview_1d<const Spack>& qv_prev,
     const uview_1d<const Spack>& t_prev,
+    const uview_1d<const Spack>& omega,
     const uview_1d<Spack>& T_atm,
     const uview_1d<Spack>& rho,
     const uview_1d<Spack>& inv_rho,
@@ -1273,6 +1288,10 @@ struct Functions
     const uview_1d<Spack>& nr2ni_immers_freeze,
     const uview_1d<Spack>& ni_nucleat_tend,
     const uview_1d<Spack>& qv2qi_nucleat_tend,
+    const uview_1d<Spack>& nc2ni_nihf,
+    const uview_1d<Spack>& nc2ni_niimm,
+    const uview_1d<Spack>& nc2ni_nidep,
+    const uview_1d<Spack>& nc2ni_nimey,
     const uview_1d<Spack>& pratot,
     const uview_1d<Spack>& prctot,
     bool& is_hydromet_present,
@@ -1311,6 +1330,7 @@ struct Functions
     const uview_2d<const Spack>& cld_frac_r,
     const uview_2d<const Spack>& qv_prev,
     const uview_2d<const Spack>& t_prev,
+    const uview_2d<const Spack>& omega,
     const uview_2d<Spack>& T_atm,
     const uview_2d<Spack>& rho,
     const uview_2d<Spack>& inv_rho,
@@ -1370,6 +1390,10 @@ struct Functions
     const uview_2d<Spack>& nr2ni_immers_freeze,
     const uview_2d<Spack>& ni_nucleat_tend,
     const uview_2d<Spack>& qv2qi_nucleat_tend,
+    const uview_1d<Spack>& nc2ni_nihf,
+    const uview_1d<Spack>& nc2ni_niimm,
+    const uview_1d<Spack>& nc2ni_nidep,
+    const uview_1d<Spack>& nc2ni_nimey,
     const uview_2d<Spack>& pratot,
     const uview_2d<Spack>& prctot,
     const uview_1d<bool>& is_nucleat_possible,
@@ -1544,6 +1568,7 @@ constexpr ScalarT Functions<ScalarT, DeviceT>::P3C::lookup_table_1a_dum1_c;
 # include "p3_calc_rime_density_impl.hpp"
 # include "p3_ice_classical_nucleation_impl.hpp"
 # include "p3_cldliq_imm_freezing_impl.hpp"
+# include "p3_nucleate_ice_lp05.hpp"
 # include "p3_droplet_self_coll_impl.hpp"
 # include "p3_cloud_sed_impl.hpp"
 # include "p3_cloud_rain_acc_impl.hpp"
