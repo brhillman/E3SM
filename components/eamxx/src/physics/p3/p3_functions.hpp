@@ -58,17 +58,15 @@ struct Functions
   using Scalar = ScalarT;
   using Device = DeviceT;
 
-  template <typename S>
-  using BigPack = ekat::Pack<S,SCREAM_PACK_SIZE>;
-  template <typename S>
-  using SmallPack = ekat::Pack<S,SCREAM_SMALL_PACK_SIZE>;
+  using Pack = ekat::Pack<Scalar, SCREAM_PACK_SIZE>;
+  using IntPack = ekat::Pack<Int, SCREAM_PACK_SIZE>;
 
-  using IntSmallPack = SmallPack<Int>;
-  using Pack = BigPack<Scalar>;
-  using Pack = SmallPack<Scalar>;
+  using Mask = ekat::Mask<Pack::n>;
 
-  using Mask = ekat::Mask<BigPack<Scalar>::n>;
-  using Mask = ekat::Mask<SmallPack<Scalar>::n>;
+  // Backward-compat aliases (Spack/Smask/IntSmallPack -> Pack/Mask/IntPack)
+  using Spack = Pack;
+  using Smask = Mask;
+  using IntSmallPack = IntPack;
 
   using KT = KokkosTypes<Device>;
 
