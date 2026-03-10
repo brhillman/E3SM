@@ -1,3 +1,0 @@
-config_use_precip_scaling = .true.
-config_precip_scaling_mode = 'constant'
-config_precip_scaling_constant_factor = 0.95
