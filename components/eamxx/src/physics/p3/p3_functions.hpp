@@ -58,7 +58,7 @@ struct Functions
   using Scalar = ScalarT;
   using Device = DeviceT;
 
-  using Pack = ekat::Pack<Scalar, SCREAM_PACK_SIZE>;
+  using Pack         = ekat::Pack<Scalar, SCREAM_PACK_SIZE>;
   using IntPack = ekat::Pack<Int, SCREAM_PACK_SIZE>;
 
   using Mask = ekat::Mask<Pack::n>;
