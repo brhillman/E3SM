@@ -52,17 +52,17 @@ void run_bfb()
 
   // Run the lookup from a kernel and copy results back to host
   Kokkos::parallel_for(num_test_itrs, KOKKOS_LAMBDA(const Int& i) {
-    const Int offset = i * Spack::n;
+    const Int offset = i * Pack::n;
 
     // Init pack inputs
-    Spack cld_frac_l, cld_frac_r, cld_frac_i, qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend, nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend,
+    Pack cld_frac_l, cld_frac_r, cld_frac_i, qc2qr_accret_tend, qr2qv_evap_tend, qc2qr_autoconv_tend, nc_accret_tend, nc_selfcollect_tend, nc2nr_autoconv_tend, nr_selfcollect_tend,
       nr_evap_tend, ncautr, qi2qv_sublim_tend, nr_ice_shed_tend, qc2qi_immers_freeze_tend, qr2qi_collect_tend, qc2qr_ice_shed_tend, qi2qr_melt_tend,
       qc2qi_collect_tend, qr2qi_immers_freeze_tend, ni2nr_melt_tend, nc_collect_tend, ncshdc, nc2ni_immers_freeze_tend,
       nr_collect_tend, ni_selfcollect_tend, qv2qi_vapdep_tend, nr2ni_immers_freeze_tend,
       ni_sublim_tend, qv2qi_nucleat_tend, ni_nucleat_tend, qc2qi_berg_tend,
       ncheti_cnt, qcheti_cnt, nicnt, qicnt, ninuc_cnt, qinuc_cnt; 
-    Smask context;
-    for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
+    Mask context;
+    for (Int s = 0, vs = offset; s < Pack::n; ++s, ++vs) {
       cld_frac_l[s]               = device_data[s].cld_frac_l;
       cld_frac_r[s]               = device_data[s].cld_frac_r;
       cld_frac_i[s]               = device_data[s].cld_frac_i;
@@ -111,7 +111,7 @@ void run_bfb()
       ncheti_cnt, qcheti_cnt, nicnt, qicnt, ninuc_cnt, qinuc_cnt, context);
 
     // Copy results back into views
-    for (Int s = 0, vs = offset; s < Spack::n; ++s, ++vs) {
+    for (Int s = 0, vs = offset; s < Pack::n; ++s, ++vs) {
       device_data(s).qc2qr_accret_tend        = qc2qr_accret_tend[s];
       device_data(s).qr2qv_evap_tend          = qr2qv_evap_tend[s];
       device_data(s).qc2qr_autoconv_tend      = qc2qr_autoconv_tend[s];
