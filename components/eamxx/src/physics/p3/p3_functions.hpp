@@ -223,6 +223,8 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<const Pack> dz;
     // Pressure thickness [Pa]
     view_2d<const Pack> dpres;
+    // Pressure velocity
+    view_2d<const Pack> omega;
     // Exner expression
     view_2d<const Pack> inv_exner;
     // qv from previous step [kg/kg]
@@ -306,12 +308,24 @@ template <typename ScalarT, typename DeviceT> struct Functions {
     view_2d<Pack> qc2qr_ice_shed;
     view_2d<Pack> qc2qi_collect;
     view_2d<Pack> qr2qi_collect;
-    view_2d<Pack> qc2qi_hetero_freeze;
+    view_2d<Pack> qc2qi_immers_freeze;
+    view_2d<Pack> qc2qi_homfrz;
+    view_2d<Pack> qr2qi_homfrz;
+    view_2d<Pack> nc2ni_homfrz;
+    view_2d<Pack> nr2ni_homfrz;
     view_2d<Pack> qr2qi_immers_freeze;
+    view_2d<Pack> nc2ni_immers_freeze;
+    view_2d<Pack> nr2ni_immers_freeze;
+    view_2d<Pack> ni_nucleat_tend;
+    view_2d<Pack> qv2qi_nucleat_tend;
     view_2d<Pack> qi2qr_melt;
     view_2d<Pack> qr_sed;
     view_2d<Pack> qc_sed;
     view_2d<Pack> qi_sed;
+    view_2d<Pack> nc2ni_nihf;
+    view_2d<Pack> nc2ni_niimm;
+    view_2d<Pack> nc2ni_nidep;
+    view_2d<Pack> nc2ni_nimey;
   };
 
   // This struct stores kokkos views for the lookup tables needed in p3_main()
@@ -404,20 +418,20 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   // Converts quantities to cell averages
   KOKKOS_FUNCTION
-  static void back_to_cell_average(
-      const Pack &cld_frac_l, const Pack &cld_frac_r, const Pack &cld_frac_i,
-      Pack &qc2qr_accret_tend, Pack &qr2qv_evap_tend, Pack &qc2qr_autoconv_tend,
-      Pack &nc_accret_tend, Pack &nc_selfcollect_tend, Pack &nc2nr_autoconv_tend,
-      Pack &nr_selfcollect_tend, Pack &nr_evap_tend, Pack &ncautr, Pack &qi2qv_sublim_tend,
-      Pack &nr_ice_shed_tend, Pack &qc2qi_hetero_freeze_tend, Pack &qr2qi_collect_tend,
-      Pack &qc2qr_ice_shed_tend, Pack &qi2qr_melt_tend, Pack &qc2qi_collect_tend,
-      Pack &qr2qi_immers_freeze_tend, Pack &ni2nr_melt_tend, Pack &nc_collect_tend,
-      Pack &ncshdc, Pack &nc2ni_immers_freeze_tend, Pack &nr_collect_tend,
-      Pack &ni_selfcollect_tend, Pack &qv2qi_vapdep_tend, Pack &nr2ni_immers_freeze_tend,
-      Pack &ni_sublim_tend, Pack &qv2qi_nucleat_tend, Pack &ni_nucleat_tend,
-      Pack &qc2qi_berg_tend, Pack &ncheti_cnt, Pack &qcheti_cnt, Pack &nicnt, Pack &qicnt,
-      Pack &ninuc_cnt, Pack &qinuc_cnt, const Mask &context = Mask(true),
-      const P3Runtime &runtime_options = {});
+  static void back_to_cell_average(const Pack& cld_frac_l, const Pack& cld_frac_r,
+                                   const Pack& cld_frac_i, Pack& qc2qr_accret_tend, Pack& qr2qv_evap_tend,
+                                   Pack& qc2qr_autoconv_tend, Pack& nc_accret_tend, Pack& nc_selfcollect_tend,
+                                   Pack& nc2nr_autoconv_tend, Pack& nr_selfcollect_tend, Pack& nr_evap_tend,
+                                   Pack& ncautr,
+                                   Pack& qi2qv_sublim_tend, Pack& nr_ice_shed_tend, Pack& qc2qi_immers_freeze_tend,
+                                   Pack& qr2qi_collect_tend, Pack& qc2qr_ice_shed_tend, Pack& qi2qr_melt_tend,
+                                   Pack& qc2qi_collect_tend, Pack& qr2qi_immers_freeze_tend, Pack& ni2nr_melt_tend,
+                                   Pack& nc_collect_tend, Pack& ncshdc, Pack& nc2ni_immers_freeze_tend,
+                                   Pack& nr_collect_tend, Pack& ni_selfcollect_tend, Pack& qv2qi_vapdep_tend,
+                                   Pack& nr2ni_immers_freeze_tend, Pack& ni_sublim_tend, Pack& qv2qi_nucleat_tend,
+                                   Pack& ni_nucleat_tend, Pack& qc2qi_berg_tend, Pack& ncheti_cnt, Pack& qcheti_cnt, 
+                                   Pack& nicnt, Pack& qicnt, Pack& ninuc_cnt, Pack& qinuc_cnt, 
+                                   const Mask& context = Mask(true), const P3Runtime& runtime_options = {} );
 
   //------------------------------------------------------------------------------------------!
   // Finds indices in 3D ice (only) lookup table
@@ -595,23 +609,45 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   // homogeneous freezing of cloud and rain
   KOKKOS_FUNCTION
-  static void homogeneous_freezing(const uview_1d<const Pack> &T_atm,
-                                   const uview_1d<const Pack> &inv_exner, const MemberType &team,
-                                   const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir,
-                                   const uview_1d<Pack> &qc, const uview_1d<Pack> &nc,
-                                   const uview_1d<Pack> &qr, const uview_1d<Pack> &nr,
-                                   const uview_1d<Pack> &qi, const uview_1d<Pack> &ni,
-                                   const uview_1d<Pack> &qm, const uview_1d<Pack> &bm,
-                                   const uview_1d<Pack> &th_atm);
+  static void homogeneous_freezing(
+    const uview_1d<const Pack>& T_atm,
+    const uview_1d<const Pack>& inv_exner,
+    const MemberType& team,
+    const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir, const Scalar& inv_dt,
+    const uview_1d<Pack>& qc,
+    const uview_1d<Pack>& nc,
+    const uview_1d<Pack>& qr,
+    const uview_1d<Pack>& nr,
+    const uview_1d<Pack>& qi,
+    const uview_1d<Pack>& ni,
+    const uview_1d<Pack>& qm,
+    const uview_1d<Pack>& bm,
+    const uview_1d<Pack>& qc2qi_homfrz,
+    const uview_1d<Pack>& qr2qi_homfrz,
+    const uview_1d<Pack>& nc2ni_homfrz,
+    const uview_1d<Pack>& nr2ni_homfrz,
+    const uview_1d<Pack>& th_atm);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
   static void homogeneous_freezing_disp(
-      const uview_2d<const Pack> &T_atm, const uview_2d<const Pack> &inv_exner, const Int &nj,
-      const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const uview_2d<Pack> &qc,
-      const uview_2d<Pack> &nc, const uview_2d<Pack> &qr, const uview_2d<Pack> &nr,
-      const uview_2d<Pack> &qi, const uview_2d<Pack> &ni, const uview_2d<Pack> &qm,
-      const uview_2d<Pack> &bm, const uview_2d<Pack> &th_atm,
-      const uview_1d<bool> &is_nucleat_possible, const uview_1d<bool> &is_hydromet_present);
+    const uview_2d<const Pack>& T_atm,
+    const uview_2d<const Pack>& inv_exner,
+    const Int& nj, const Int& nk, const Int& ktop, const Int& kbot, const Int& kdir, const Int& inv_dt,
+    const uview_2d<Pack>& qc,
+    const uview_2d<Pack>& nc,
+    const uview_2d<Pack>& qr,
+    const uview_2d<Pack>& nr,
+    const uview_2d<Pack>& qi,
+    const uview_2d<Pack>& ni,
+    const uview_2d<Pack>& qm,
+    const uview_2d<Pack>& bm,
+    const uview_1d<Pack>& qc2qi_homfrz,
+    const uview_1d<Pack>& qr2qi_homfrz,
+    const uview_1d<Pack>& nc2ni_homfrz,
+    const uview_1d<Pack>& nr2ni_homfrz,
+    const uview_2d<Pack>& th_atm,
+    const uview_1d<bool>& is_nucleat_possible,
+    const uview_1d<bool>& is_hydromet_present);
 #endif
 
   // -- Find layers
@@ -628,13 +664,11 @@ template <typename ScalarT, typename DeviceT> struct Functions {
                       const Int &kbot, const Int &ktop, const Int &kdir, bool &log_present);
 
   KOKKOS_FUNCTION
-  static void cloud_water_conservation(
-      const Pack &qc, const Scalar dt, Pack &qc2qr_autoconv_tend, Pack &qc2qr_accret_tend,
-      Pack &qc2qi_collect_tend, Pack &qc2qi_hetero_freeze_tend, Pack &qc2qr_ice_shed_tend,
-      Pack &qc2qi_berg_tend, Pack &qi2qv_sublim_tend, Pack &qv2qi_vapdep_tend, Pack &qcheti_cnt,
-      Pack &qicnt, const bool &use_hetfrz_classnuc, const Mask &context = Mask(true),
-      const Pack &cld_frac_l = Pack(), const Pack &cld_frac_i = Pack(),
-      const P3Runtime &runtime_options = {});
+  static void cloud_water_conservation(const Pack& qc, const Scalar dt,
+    Pack& qc2qr_autoconv_tend, Pack& qc2qr_accret_tend, Pack &qc2qi_collect_tend, Pack& qc2qi_immers_freeze_tend,
+    Pack& qc2qr_ice_shed_tend, Pack& qc2qi_berg_tend, Pack& qi2qv_sublim_tend, Pack& qv2qi_vapdep_tend,
+    Pack& qcheti_cnt, Pack& qicnt, const bool& use_hetfrz_classnuc, const Mask& context = Mask(true),
+    const Pack& cld_frac_l = Pack(), const Pack& cld_frac_i = Pack(), const P3Runtime& runtime_options = {} );
 
   KOKKOS_FUNCTION
   static void rain_water_conservation(const Pack &qr, const Pack &qc2qr_autoconv_tend,
@@ -646,12 +680,11 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   KOKKOS_FUNCTION
   static void ice_water_conservation(
-      const Pack &qi, const Pack &qv2qi_vapdep_tend, const Pack &qv2qi_nucleat_tend,
-      const Pack &qc2qi_berg_tend, const Pack &qr2qi_collect_tend,
-      const Pack &qc2qi_collect_tend, const Pack &qr2qi_immers_freeze_tend,
-      const Pack &qc2qi_hetero_freeze_tend, const Scalar dt, Pack &qinuc_cnt, Pack &qcheti_cnt,
-      Pack &qicnt, Pack &qi2qv_sublim_tend, Pack &qi2qr_melt_tend,
-      const bool &use_hetfrz_classnuc, const Mask &context = Mask(true));
+    const Pack& qi,const Pack& qv2qi_vapdep_tend,const Pack& qv2qi_nucleat_tend,const Pack& qc2qi_berg_tend, const Pack &qr2qi_collect_tend,
+    const Pack &qc2qi_collect_tend,const Pack& qr2qi_immers_freeze_tend,const Pack& qc2qi_immers_freeze_tend,const Scalar dt,
+    Pack &qinuc_cnt, Pack &qcheti_cnt, Pack &qicnt,
+    Pack& qi2qv_sublim_tend, Pack& qi2qr_melt_tend, const bool& use_hetfrz_classnuc,
+    const Mask& context = Mask(true) );
 
   // TODO: comment
   KOKKOS_FUNCTION
@@ -680,12 +713,19 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   // Computes contact and immersion freezing droplets
   KOKKOS_FUNCTION
-  static void cldliq_immersion_freezing(const Pack &T_atm, const Pack &lamc, const Pack &mu_c,
-                                        const Pack &cdist1, const Pack &qc_incld,
-                                        const Pack &inv_qc_relvar, Pack &qc2qi_hetero_freeze_tend,
-                                        Pack &nc2ni_immers_freeze_tend,
-                                        const P3Runtime &runtime_options,
-                                        const Mask &context = Mask(true));
+  static void cldliq_immersion_freezing(const Pack& T_atm, const Pack& lamc,
+    const Pack& mu_c, const Pack& cdist1, const Pack& qc_incld, const Pack& inv_qc_relvar,
+    Pack& qc2qi_immers_freeze_tend, Pack& nc2ni_immers_freeze_tend,
+    const P3Runtime& runtime_options,
+    const Mask& context = Mask(true) );
+
+  // LP05 homogeneous sulfate freezing, immersion freezing, and meyers deposition freezing
+  KOKKOS_FUNCTION
+  static void nucleate_ice_lp05(const Pack& T_atm, const Pack& pres,
+    const Pack& qv, const Pack& omega, const Pack& rho, const Pack& inv_qc_relvar,
+    Pack& nc2ni_nihf, Pack& nc2ni_niimm, Pack& nc2ni_nidep, Pack& nc2ni_nimey,
+    const P3Runtime& runtime_options,
+    const Mask& context = Mask(true) );
 
   // Computes the immersion freezing of rain
   KOKKOS_FUNCTION
@@ -762,19 +802,18 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   //-- ice-phase dependent processes:
   KOKKOS_FUNCTION
   static void update_prognostic_ice(
-      const Pack &qc2qi_hetero_freeze_tend, const Pack &qc2qi_collect_tend,
-      const Pack &qc2qr_ice_shed_tend, const Pack &nc_collect_tend,
-      const Pack &nc2ni_immers_freeze_tend, const Pack &ncshdc, const Pack &qr2qi_collect_tend,
-      const Pack &nr_collect_tend, const Pack &qr2qi_immers_freeze_tend,
-      const Pack &nr2ni_immers_freeze_tend, const Pack &nr_ice_shed_tend,
-      const Pack &qi2qr_melt_tend, const Pack &ni2nr_melt_tend, const Pack &qi2qv_sublim_tend,
-      const Pack &qv2qi_vapdep_tend, const Pack &qv2qi_nucleat_tend, const Pack &ni_nucleat_tend,
-      const Pack &ni_selfcollect_tend, const Pack &ni_sublim_tend, const Pack &qc2qi_berg_tend,
-      const Pack &inv_exner, const bool do_predict_nc, const Mask &log_wetgrowth, const Scalar dt,
-      const Scalar &nmltratio, const Pack &rho_qm_cloud, Pack &ncheti_cnt, Pack &nicnt,
-      Pack &ninuc_cnt, Pack &qcheti_cnt, Pack &qicnt, Pack &qinuc_cnt, Pack &th_atm, Pack &qv,
-      Pack &qi, Pack &ni, Pack &qm, Pack &bm, Pack &qc, Pack &nc, Pack &qr, Pack &nr,
-      const bool &use_hetfrz_classnuc, const Mask &context = Mask(true));
+    const Pack& qc2qi_immers_freeze_tend, const Pack& qc2qi_collect_tend,
+    const Pack& qc2qr_ice_shed_tend,  const Pack& nc_collect_tend,  const Pack& nc2ni_immers_freeze_tend, const Pack& ncshdc,
+    const Pack& qr2qi_collect_tend,  const Pack& nr_collect_tend,  const Pack& qr2qi_immers_freeze_tend, const Pack& nr2ni_immers_freeze_tend,
+    const Pack& nr_ice_shed_tend, const Pack& qi2qr_melt_tend,  const Pack& ni2nr_melt_tend,  const Pack& qi2qv_sublim_tend,
+    const Pack& qv2qi_vapdep_tend,  const Pack& qv2qi_nucleat_tend,  const Pack& ni_nucleat_tend,  const Pack& ni_selfcollect_tend,
+    const Pack& ni_sublim_tend,  const Pack& qc2qi_berg_tend, const Pack& inv_exner,
+    const bool do_predict_nc, const Mask& log_wetgrowth, const Scalar dt,
+    const Scalar& nmltratio, const Pack& rho_qm_cloud, 
+    Pack& ncheti_cnt, Pack& nicnt, Pack& ninuc_cnt, Pack& qcheti_cnt, Pack& qicnt, Pack& qinuc_cnt,  
+    Pack& th_atm, Pack& qv, Pack& qi,
+    Pack& ni, Pack& qm, Pack& bm, Pack& qc,  Pack& nc, Pack& qr, Pack& nr, const bool& use_hetfrz_classnuc,
+    const Mask& context = Mask(true));
 
   // TODO (comments)
   KOKKOS_FUNCTION
@@ -1020,89 +1059,207 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   KOKKOS_FUNCTION
   static void p3_main_part2(
-      const MemberType &team, const Int &nk_pack, const Scalar &max_total_ni,
-      const bool &do_predict_nc, const bool &do_prescribed_CCN, const Scalar &dt,
-      const Scalar &inv_dt, const uview_1d<const Pack> &ohetfrz_immersion_nucleation_tend,
-      const uview_1d<const Pack> &ohetfrz_contact_nucleation_tend,
-      const uview_1d<const Pack> &ohetfrz_deposition_nucleation_tend, const view_dnu_table &dnu,
-      const view_ice_table &ice_table_vals, const view_collect_table &collect_table_vals,
-      const view_2d_table &revap_table_vals, const uview_1d<const Pack> &pres,
-      const uview_1d<const Pack> &dpres, const uview_1d<const Pack> &dz,
-      const uview_1d<const Pack> &nc_nuceat_tend, const uview_1d<const Pack> &inv_exner,
-      const uview_1d<const Pack> &exner, const uview_1d<const Pack> &inv_cld_frac_l,
-      const uview_1d<const Pack> &inv_cld_frac_i, const uview_1d<const Pack> &inv_cld_frac_r,
-      const uview_1d<const Pack> &ni_activated, const uview_1d<const Pack> &inv_qc_relvar,
-      const uview_1d<const Pack> &cld_frac_i, const uview_1d<const Pack> &cld_frac_l,
-      const uview_1d<const Pack> &cld_frac_r, const uview_1d<const Pack> &qv_prev,
-      const uview_1d<const Pack> &t_prev, const uview_1d<Pack> &T_atm, const uview_1d<Pack> &rho,
-      const uview_1d<Pack> &inv_rho, const uview_1d<Pack> &qv_sat_l,
-      const uview_1d<Pack> &qv_sat_i, const uview_1d<Pack> &qv_supersat_i,
-      const uview_1d<Pack> &rhofacr, const uview_1d<Pack> &rhofaci, const uview_1d<Pack> &acn,
-      const uview_1d<Pack> &qv, const uview_1d<Pack> &th_atm, const uview_1d<Pack> &qc,
-      const uview_1d<Pack> &nc, const uview_1d<Pack> &qr, const uview_1d<Pack> &nr,
-      const uview_1d<Pack> &qi, const uview_1d<Pack> &ni, const uview_1d<Pack> &qm,
-      const uview_1d<Pack> &bm, const uview_1d<Pack> &qc_incld, const uview_1d<Pack> &qr_incld,
-      const uview_1d<Pack> &qi_incld, const uview_1d<Pack> &qm_incld,
-      const uview_1d<Pack> &nc_incld, const uview_1d<Pack> &nr_incld,
-      const uview_1d<Pack> &ni_incld, const uview_1d<Pack> &bm_incld, const uview_1d<Pack> &mu_c,
-      const uview_1d<Pack> &nu, const uview_1d<Pack> &lamc, const uview_1d<Pack> &cdist,
-      const uview_1d<Pack> &cdist1, const uview_1d<Pack> &cdistr, const uview_1d<Pack> &mu_r,
-      const uview_1d<Pack> &lamr, const uview_1d<Pack> &logn0r,
-      const uview_1d<Pack> &qv2qi_depos_tend, const uview_1d<Pack> &precip_total_tend,
-      const uview_1d<Pack> &nevapr, const uview_1d<Pack> &qr_evap_tend,
-      const uview_1d<Pack> &vap_liq_exchange, const uview_1d<Pack> &vap_ice_exchange,
-      const uview_1d<Pack> &liq_ice_exchange, const uview_1d<Pack> &qr2qv_evap,
-      const uview_1d<Pack> &qi2qv_sublim, const uview_1d<Pack> &qc2qr_accret,
-      const uview_1d<Pack> &qc2qr_autoconv, const uview_1d<Pack> &qv2qi_vapdep,
-      const uview_1d<Pack> &qc2qi_berg, const uview_1d<Pack> &qc2qr_ice_shed,
-      const uview_1d<Pack> &qc2qi_collect, const uview_1d<Pack> &qr2qi_collect,
-      const uview_1d<Pack> &qc2qi_hetero_freeze, const uview_1d<Pack> &qr2qi_immers_freeze,
-      const uview_1d<Pack> &qi2qr_melt, const uview_1d<Pack> &pratot,
-      const uview_1d<Pack> &prctot, bool &is_hydromet_present, const Int &nk,
-      const P3Runtime &runtime_options);
+    const MemberType& team,
+    const Int& nk_pack,
+    const Scalar& max_total_ni,
+    const bool& do_predict_nc,
+    const bool& do_prescribed_CCN,
+    const Scalar& dt,
+    const Scalar& inv_dt,
+    const uview_1d<const Pack>& ohetfrz_immersion_nucleation_tend,
+    const uview_1d<const Pack>& ohetfrz_contact_nucleation_tend,
+    const uview_1d<const Pack>& ohetfrz_deposition_nucleation_tend,
+    const view_dnu_table& dnu,
+    const view_ice_table& ice_table_vals,
+    const view_collect_table& collect_table_vals,
+    const view_2d_table& revap_table_vals,
+    const uview_1d<const Pack>& pres,
+    const uview_1d<const Pack>& dpres,
+    const uview_1d<const Pack>& dz,
+    const uview_1d<const Pack>& nc_nuceat_tend,
+    const uview_1d<const Pack>& inv_exner,
+    const uview_1d<const Pack>& exner,
+    const uview_1d<const Pack>& inv_cld_frac_l,
+    const uview_1d<const Pack>& inv_cld_frac_i,
+    const uview_1d<const Pack>& inv_cld_frac_r,
+    const uview_1d<const Pack>& ni_activated,
+    const uview_1d<const Pack>& inv_qc_relvar,
+    const uview_1d<const Pack>& cld_frac_i,
+    const uview_1d<const Pack>& cld_frac_l,
+    const uview_1d<const Pack>& cld_frac_r,
+    const uview_1d<const Pack>& qv_prev,
+    const uview_1d<const Pack>& t_prev,
+    const uview_1d<const Pack>& omega,
+    const uview_1d<Pack>& T_atm,
+    const uview_1d<Pack>& rho,
+    const uview_1d<Pack>& inv_rho,
+    const uview_1d<Pack>& qv_sat_l,
+    const uview_1d<Pack>& qv_sat_i,
+    const uview_1d<Pack>& qv_supersat_i,
+    const uview_1d<Pack>& rhofacr,
+    const uview_1d<Pack>& rhofaci,
+    const uview_1d<Pack>& acn,
+    const uview_1d<Pack>& qv,
+    const uview_1d<Pack>& th_atm,
+    const uview_1d<Pack>& qc,
+    const uview_1d<Pack>& nc,
+    const uview_1d<Pack>& qr,
+    const uview_1d<Pack>& nr,
+    const uview_1d<Pack>& qi,
+    const uview_1d<Pack>& ni,
+    const uview_1d<Pack>& qm,
+    const uview_1d<Pack>& bm,
+    const uview_1d<Pack>& qc_incld,
+    const uview_1d<Pack>& qr_incld,
+    const uview_1d<Pack>& qi_incld,
+    const uview_1d<Pack>& qm_incld,
+    const uview_1d<Pack>& nc_incld,
+    const uview_1d<Pack>& nr_incld,
+    const uview_1d<Pack>& ni_incld,
+    const uview_1d<Pack>& bm_incld,
+    const uview_1d<Pack>& mu_c,
+    const uview_1d<Pack>& nu,
+    const uview_1d<Pack>& lamc,
+    const uview_1d<Pack>& cdist,
+    const uview_1d<Pack>& cdist1,
+    const uview_1d<Pack>& cdistr,
+    const uview_1d<Pack>& mu_r,
+    const uview_1d<Pack>& lamr,
+    const uview_1d<Pack>& logn0r,
+    const uview_1d<Pack>& qv2qi_depos_tend,
+    const uview_1d<Pack>& precip_total_tend,
+    const uview_1d<Pack>& nevapr,
+    const uview_1d<Pack>& qr_evap_tend,
+    const uview_1d<Pack>& vap_liq_exchange,
+    const uview_1d<Pack>& vap_ice_exchange,
+    const uview_1d<Pack>& liq_ice_exchange,
+    const uview_1d<Pack>& qr2qv_evap,
+    const uview_1d<Pack>& qi2qv_sublim,
+    const uview_1d<Pack>& qc2qr_accret,
+    const uview_1d<Pack>& qc2qr_autoconv,
+    const uview_1d<Pack>& qv2qi_vapdep,
+    const uview_1d<Pack>& qc2qi_berg,
+    const uview_1d<Pack>& qc2qr_ice_shed,
+    const uview_1d<Pack>& qc2qi_collect,
+    const uview_1d<Pack>& qr2qi_collect,
+    const uview_1d<Pack>& qc2qi_immers_freeze,
+    const uview_1d<Pack>& qr2qi_immers_freeze,
+    const uview_1d<Pack>& qi2qr_melt,
+    const uview_1d<Pack>& nc2ni_immers_freeze,
+    const uview_1d<Pack>& nr2ni_immers_freeze,
+    const uview_1d<Pack>& ni_nucleat_tend,
+    const uview_1d<Pack>& qv2qi_nucleat_tend,
+    const uview_1d<Pack>& nc2ni_nihf,
+    const uview_1d<Pack>& nc2ni_niimm,
+    const uview_1d<Pack>& nc2ni_nidep,
+    const uview_1d<Pack>& nc2ni_nimey,
+    const uview_1d<Pack>& pratot,
+    const uview_1d<Pack>& prctot,
+    bool& is_hydromet_present,
+    const Int& nk,
+    const P3Runtime& runtime_options);
 
 #ifdef SCREAM_P3_SMALL_KERNELS
   static void p3_main_part2_disp(
-      const Int &nj, const Int &nk, const Scalar &max_total_ni, const bool &do_predict_nc,
-      const bool &do_prescribed_CCN, const Scalar &dt, const Scalar &inv_dt,
-      const uview_2d<const Pack> &hetfrz_immersion_nucleation_tend,
-      const uview_2d<const Pack> &hetfrz_contact_nucleation_tend,
-      const uview_2d<const Pack> &hetfrz_deposition_nucleation_tend, const view_dnu_table &dnu,
-      const view_ice_table &ice_table_vals, const view_collect_table &collect_table_vals,
-      const view_2d_table &revap_table_vals, const uview_2d<const Pack> &pres,
-      const uview_2d<const Pack> &dpres, const uview_2d<const Pack> &dz,
-      const uview_2d<const Pack> &nc_nuceat_tend, const uview_2d<const Pack> &inv_exner,
-      const uview_2d<const Pack> &exner, const uview_2d<const Pack> &inv_cld_frac_l,
-      const uview_2d<const Pack> &inv_cld_frac_i, const uview_2d<const Pack> &inv_cld_frac_r,
-      const uview_2d<const Pack> &ni_activated, const uview_2d<const Pack> &inv_qc_relvar,
-      const uview_2d<const Pack> &cld_frac_i, const uview_2d<const Pack> &cld_frac_l,
-      const uview_2d<const Pack> &cld_frac_r, const uview_2d<const Pack> &qv_prev,
-      const uview_2d<const Pack> &t_prev, const uview_2d<Pack> &T_atm, const uview_2d<Pack> &rho,
-      const uview_2d<Pack> &inv_rho, const uview_2d<Pack> &qv_sat_l,
-      const uview_2d<Pack> &qv_sat_i, const uview_2d<Pack> &qv_supersat_i,
-      const uview_2d<Pack> &rhofacr, const uview_2d<Pack> &rhofaci, const uview_2d<Pack> &acn,
-      const uview_2d<Pack> &qv, const uview_2d<Pack> &th_atm, const uview_2d<Pack> &qc,
-      const uview_2d<Pack> &nc, const uview_2d<Pack> &qr, const uview_2d<Pack> &nr,
-      const uview_2d<Pack> &qi, const uview_2d<Pack> &ni, const uview_2d<Pack> &qm,
-      const uview_2d<Pack> &bm, const uview_2d<Pack> &qc_incld, const uview_2d<Pack> &qr_incld,
-      const uview_2d<Pack> &qi_incld, const uview_2d<Pack> &qm_incld,
-      const uview_2d<Pack> &nc_incld, const uview_2d<Pack> &nr_incld,
-      const uview_2d<Pack> &ni_incld, const uview_2d<Pack> &bm_incld, const uview_2d<Pack> &mu_c,
-      const uview_2d<Pack> &nu, const uview_2d<Pack> &lamc, const uview_2d<Pack> &cdist,
-      const uview_2d<Pack> &cdist1, const uview_2d<Pack> &cdistr, const uview_2d<Pack> &mu_r,
-      const uview_2d<Pack> &lamr, const uview_2d<Pack> &logn0r,
-      const uview_2d<Pack> &qv2qi_depos_tend, const uview_2d<Pack> &precip_total_tend,
-      const uview_2d<Pack> &nevapr, const uview_2d<Pack> &qr_evap_tend,
-      const uview_2d<Pack> &vap_liq_exchange, const uview_2d<Pack> &vap_ice_exchange,
-      const uview_2d<Pack> &liq_ice_exchange, const uview_2d<Pack> &qr2qv_evap,
-      const uview_2d<Pack> &qi2qv_sublim, const uview_2d<Pack> &qc2qr_accret,
-      const uview_2d<Pack> &qc2qr_autoconv, const uview_2d<Pack> &qv2qi_vapdep,
-      const uview_2d<Pack> &qc2qi_berg, const uview_2d<Pack> &qc2qr_ice_shed,
-      const uview_2d<Pack> &qc2qi_collect, const uview_2d<Pack> &qr2qi_collect,
-      const uview_2d<Pack> &qc2qi_hetero_freeze, const uview_2d<Pack> &qr2qi_immers_freeze,
-      const uview_2d<Pack> &qi2qr_melt, const uview_2d<Pack> &pratot,
-      const uview_2d<Pack> &prctot, const uview_1d<bool> &is_nucleat_possible,
-      const uview_1d<bool> &is_hydromet_present, const P3Runtime &runtime_options);
+    const Int& nj,
+    const Int& nk,
+    const Scalar& max_total_ni,
+    const bool& do_predict_nc,
+    const bool& do_prescribed_CCN,
+    const Scalar& dt,
+    const Scalar& inv_dt,
+    const uview_2d<const Pack>& hetfrz_immersion_nucleation_tend,
+    const uview_2d<const Pack>& hetfrz_contact_nucleation_tend,
+    const uview_2d<const Pack>& hetfrz_deposition_nucleation_tend,
+    const view_dnu_table& dnu,
+    const view_ice_table& ice_table_vals,
+    const view_collect_table& collect_table_vals,
+    const view_2d_table& revap_table_vals,
+    const uview_2d<const Pack>& pres,
+    const uview_2d<const Pack>& dpres,
+    const uview_2d<const Pack>& dz,
+    const uview_2d<const Pack>& nc_nuceat_tend,
+    const uview_2d<const Pack>& inv_exner,
+    const uview_2d<const Pack>& exner,
+    const uview_2d<const Pack>& inv_cld_frac_l,
+    const uview_2d<const Pack>& inv_cld_frac_i,
+    const uview_2d<const Pack>& inv_cld_frac_r,
+    const uview_2d<const Pack>& ni_activated,
+    const uview_2d<const Pack>& inv_qc_relvar,
+    const uview_2d<const Pack>& cld_frac_i,
+    const uview_2d<const Pack>& cld_frac_l,
+    const uview_2d<const Pack>& cld_frac_r,
+    const uview_2d<const Pack>& qv_prev,
+    const uview_2d<const Pack>& t_prev,
+    const uview_2d<const Pack>& omega,
+    const uview_2d<Pack>& T_atm,
+    const uview_2d<Pack>& rho,
+    const uview_2d<Pack>& inv_rho,
+    const uview_2d<Pack>& qv_sat_l,
+    const uview_2d<Pack>& qv_sat_i,
+    const uview_2d<Pack>& qv_supersat_i,
+    const uview_2d<Pack>& rhofacr,
+    const uview_2d<Pack>& rhofaci,
+    const uview_2d<Pack>& acn,
+    const uview_2d<Pack>& qv,
+    const uview_2d<Pack>& th_atm,
+    const uview_2d<Pack>& qc,
+    const uview_2d<Pack>& nc,
+    const uview_2d<Pack>& qr,
+    const uview_2d<Pack>& nr,
+    const uview_2d<Pack>& qi,
+    const uview_2d<Pack>& ni,
+    const uview_2d<Pack>& qm,
+    const uview_2d<Pack>& bm,
+    const uview_2d<Pack>& qc_incld,
+    const uview_2d<Pack>& qr_incld,
+    const uview_2d<Pack>& qi_incld,
+    const uview_2d<Pack>& qm_incld,
+    const uview_2d<Pack>& nc_incld,
+    const uview_2d<Pack>& nr_incld,
+    const uview_2d<Pack>& ni_incld,
+    const uview_2d<Pack>& bm_incld,
+    const uview_2d<Pack>& mu_c,
+    const uview_2d<Pack>& nu,
+    const uview_2d<Pack>& lamc,
+    const uview_2d<Pack>& cdist,
+    const uview_2d<Pack>& cdist1,
+    const uview_2d<Pack>& cdistr,
+    const uview_2d<Pack>& mu_r,
+    const uview_2d<Pack>& lamr,
+    const uview_2d<Pack>& logn0r,
+    const uview_2d<Pack>& qv2qi_depos_tend,
+    const uview_2d<Pack>& precip_total_tend,
+    const uview_2d<Pack>& nevapr,
+    const uview_2d<Pack>& qr_evap_tend,
+    const uview_2d<Pack>& vap_liq_exchange,
+    const uview_2d<Pack>& vap_ice_exchange,
+    const uview_2d<Pack>& liq_ice_exchange,
+    const uview_2d<Pack>& qr2qv_evap,
+    const uview_2d<Pack>& qi2qv_sublim,
+    const uview_2d<Pack>& qc2qr_accret,
+    const uview_2d<Pack>& qc2qr_autoconv,
+    const uview_2d<Pack>& qv2qi_vapdep,
+    const uview_2d<Pack>& qc2qi_berg,
+    const uview_2d<Pack>& qc2qr_ice_shed,
+    const uview_2d<Pack>& qc2qi_collect,
+    const uview_2d<Pack>& qr2qi_collect,
+    const uview_2d<Pack>& qc2qi_immers_freeze,
+    const uview_2d<Pack>& qr2qi_immers_freeze,
+    const uview_2d<Pack>& qi2qr_melt,
+    const uview_2d<Pack>& nc2ni_immers_freeze,
+    const uview_2d<Pack>& nr2ni_immers_freeze,
+    const uview_2d<Pack>& ni_nucleat_tend,
+    const uview_2d<Pack>& qv2qi_nucleat_tend,
+    const uview_1d<Pack>& nc2ni_nihf,
+    const uview_1d<Pack>& nc2ni_niimm,
+    const uview_1d<Pack>& nc2ni_nidep,
+    const uview_1d<Pack>& nc2ni_nimey,
+    const uview_2d<Pack>& pratot,
+    const uview_2d<Pack>& prctot,
+    const uview_1d<bool>& is_nucleat_possible,
+    const uview_1d<bool>& is_hydromet_present,
+    const P3Runtime& runtime_options);
 #endif
 
   KOKKOS_FUNCTION
@@ -1261,6 +1418,7 @@ constexpr ScalarT Functions<ScalarT, DeviceT>::P3C::lookup_table_1a_dum1_c;
 #include "p3_main_impl_part2.hpp"
 #include "p3_main_impl_part3.hpp"
 #include "p3_nc_conservation_impl.hpp"
+#include "p3_nucleate_ice_lp05.hpp"
 #include "p3_ni_conservation_impl.hpp"
 #include "p3_nr_conservation_impl.hpp"
 #include "p3_prevent_liq_supersaturation_impl.hpp"

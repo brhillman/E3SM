@@ -98,6 +98,9 @@ void P3Microphysics::create_requests()
   add_field<Updated> ("qv_prev_micro_step", scalar3d_layout_mid, kg/kg,        grid_name, ps);
   add_field<Updated> ("T_prev_micro_step",  scalar3d_layout_mid, K,            grid_name, ps);
 
+  // Required for ice nucleation routines
+  add_field<Required>("omega", scalar3d_layout_mid, Pa/s, grid_name, ps);
+
   // Input from MAM4xx-ACI for heterogeneous freezing calculations
   if (runtime_options.use_hetfrz_classnuc){
     constexpr auto cm = m / 100;
@@ -136,12 +139,24 @@ void P3Microphysics::create_requests()
     add_field<Computed>("qc2qr_ice_shed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_collect", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
-    add_field<Computed>("qc2qi_hetero_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("qc2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr2qi_immers_freeze", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("qc2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("qr2qi_homfrz", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qi2qr_melt", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qr_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qc_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("qi_sed", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_homfrz", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nr2ni_homfrz", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nr2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("ni_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("qv2qi_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_nihf", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_niimm", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_nidep", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("nc2ni_nimey", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
   }
 
   // History Only: (all fields are just outputs and are really only meant for I/O purposes)
@@ -302,6 +317,8 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
   const  auto& pseudo_density_dry = get_field_in("pseudo_density_dry").get_view<const Pack**>();
   const  auto& T_atm          = get_field_out("T_mid").get_view<Pack**>();
   const  auto& cld_frac_t_in  = get_field_in("cldfrac_tot").get_view<const Pack**>();
+  const  auto& omega = get_field_in("omega").get_view<const Pack**>();
+
   // FIXME: This is hack to get things going, these fields should be strictly
   // const But to get around bfb testing and needing to declare these fields
   // elsewhere, We will just use this workaround ...
@@ -369,6 +386,7 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
   diag_inputs.cld_frac_r      = p3_preproc.cld_frac_r;
   diag_inputs.dz              = p3_preproc.dz;
   diag_inputs.inv_exner       = p3_preproc.inv_exner;
+  diag_inputs.omega           = get_field_in("omega").get_view<const Pack**>();
 
   // Inputs for the heteogeneous freezing
   if (runtime_options.use_hetfrz_classnuc){
@@ -414,12 +432,25 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qr_ice_shed = get_field_out("qc2qr_ice_shed").get_view<Pack**>();
     history_only.qc2qi_collect = get_field_out("qc2qi_collect").get_view<Pack**>();
     history_only.qr2qi_collect = get_field_out("qr2qi_collect").get_view<Pack**>();
-    history_only.qc2qi_hetero_freeze = get_field_out("qc2qi_hetero_freeze").get_view<Pack**>();
+    history_only.qc2qi_immers_freeze = get_field_out("qc2qi_immers_freeze").get_view<Pack**>();
     history_only.qr2qi_immers_freeze = get_field_out("qr2qi_immers_freeze").get_view<Pack**>();
+    history_only.qc2qi_homfrz = get_field_out("qc2qi_homfrz").get_view<Pack**>();
+    history_only.qr2qi_homfrz = get_field_out("qr2qi_homfrz").get_view<Pack**>();
     history_only.qi2qr_melt = get_field_out("qi2qr_melt").get_view<Pack**>();
     history_only.qr_sed = get_field_out("qr_sed").get_view<Pack**>();
     history_only.qc_sed = get_field_out("qc_sed").get_view<Pack**>();
     history_only.qi_sed = get_field_out("qi_sed").get_view<Pack**>();
+    // number concentrations
+    history_only.nc2ni_homfrz = get_field_out("nc2ni_homfrz").get_view<Pack**>();
+    history_only.nr2ni_homfrz = get_field_out("nr2ni_homfrz").get_view<Pack**>();
+    history_only.nc2ni_immers_freeze = get_field_out("nc2ni_immers_freeze").get_view<Pack**>();
+    history_only.nr2ni_immers_freeze = get_field_out("nr2ni_immers_freeze").get_view<Pack**>();
+    history_only.ni_nucleat_tend = get_field_out("ni_nucleat_tend").get_view<Pack**>();
+    history_only.qv2qi_nucleat_tend = get_field_out("qv2qi_nucleat_tend").get_view<Pack**>();
+    history_only.nc2ni_nihf = get_field_out("nc2ni_nihf").get_view<Pack**>();
+    history_only.nc2ni_niimm = get_field_out("nc2ni_niimm").get_view<Pack**>();
+    history_only.nc2ni_nidep = get_field_out("nc2ni_nidep").get_view<Pack**>();
+    history_only.nc2ni_nimey = get_field_out("nc2ni_nimey").get_view<Pack**>();
   } else {
     // if not, let's use the unused buffer
     history_only.qr2qv_evap = m_buffer.unused;
@@ -431,12 +462,24 @@ void P3Microphysics::initialize_impl (const RunType /* run_type */)
     history_only.qc2qr_ice_shed = m_buffer.unused;
     history_only.qc2qi_collect = m_buffer.unused;
     history_only.qr2qi_collect = m_buffer.unused;
-    history_only.qc2qi_hetero_freeze = m_buffer.unused;
+    history_only.qc2qi_immers_freeze = m_buffer.unused;
     history_only.qr2qi_immers_freeze = m_buffer.unused;
+    history_only.qc2qi_homfrz = m_buffer.unused;
+    history_only.qr2qi_homfrz = m_buffer.unused;
     history_only.qi2qr_melt = m_buffer.unused;
     history_only.qr_sed = m_buffer.unused;
     history_only.qc_sed = m_buffer.unused;
     history_only.qi_sed = m_buffer.unused;
+    history_only.nc2ni_homfrz = m_buffer.unused;
+    history_only.nr2ni_homfrz = m_buffer.unused;
+    history_only.nc2ni_immers_freeze = m_buffer.unused;
+    history_only.nr2ni_immers_freeze = m_buffer.unused;
+    history_only.ni_nucleat_tend = m_buffer.unused;
+    history_only.qv2qi_nucleat_tend = m_buffer.unused;
+    history_only.nc2ni_nihf = m_buffer.unused;
+    history_only.nc2ni_niimm = m_buffer.unused;
+    history_only.nc2ni_nidep = m_buffer.unused;
+    history_only.nc2ni_nimey = m_buffer.unused;
   }
 #ifdef SCREAM_P3_SMALL_KERNELS
   // Temporaries

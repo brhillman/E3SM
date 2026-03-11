@@ -19,7 +19,7 @@ void Functions<S,D>
   const Pack& T_atm, const Pack& lamc,
   const Pack& mu_c, const Pack& cdist1,
   const Pack& qc_incld, const Pack& inv_qc_relvar,
-  Pack& qc2qi_hetero_freeze_tend, Pack& nc2ni_immers_freeze_tend,
+  Pack& qc2qi_immers_freeze_tend, Pack& nc2ni_immers_freeze_tend,
   const P3Runtime& runtime_options,
   const Mask& context)
 {
@@ -43,7 +43,7 @@ void Functions<S,D>
     // sgs_var_coef = subgrid_variance_scaling(inv_qc_relvar, 2);
     sgs_var_coef = 1;
 
-    qc2qi_hetero_freeze_tend.set(qc_not_small_and_t_freezing,
+    qc2qi_immers_freeze_tend.set(qc_not_small_and_t_freezing,
                sgs_var_coef * CONS6 * cdist1 * tgamma(7+mu_c) * expAimmDt *
                square(inv_lamc3));
     nc2ni_immers_freeze_tend.set(qc_not_small_and_t_freezing,

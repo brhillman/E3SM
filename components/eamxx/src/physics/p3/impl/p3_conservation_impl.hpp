@@ -11,7 +11,7 @@ template<typename S, typename D>
 KOKKOS_FUNCTION
 void Functions<S,D>
 ::cloud_water_conservation(const Pack& qc, const Scalar dt,
-  Pack& qc2qr_autoconv_tend, Pack& qc2qr_accret_tend, Pack &qc2qi_collect_tend, Pack& qc2qi_hetero_freeze_tend, 
+  Pack& qc2qr_autoconv_tend, Pack& qc2qr_accret_tend, Pack &qc2qi_collect_tend, Pack& qc2qi_immers_freeze_tend,
   Pack& qc2qr_ice_shed_tend, Pack& qc2qi_berg_tend, Pack& qi2qv_sublim_tend, Pack& qv2qi_vapdep_tend,
   Pack& qcheti_cnt, Pack& qicnt, const bool& use_hetfrz_classnuc, const Mask& context,
   const Pack& cld_frac_l, const Pack& cld_frac_i, const P3Runtime& runtime_options)
@@ -22,7 +22,7 @@ void Functions<S,D>
     sinks = (qc2qr_autoconv_tend+qc2qr_accret_tend+qc2qi_collect_tend+qcheti_cnt+qc2qr_ice_shed_tend+qc2qi_berg_tend)*dt; // Sinks of cloud water
   }
   else{
-    sinks = (qc2qr_autoconv_tend+qc2qr_accret_tend+qc2qi_collect_tend+qc2qi_hetero_freeze_tend+qc2qr_ice_shed_tend+qc2qi_berg_tend)*dt; // Sinks of cloud water
+    sinks = (qc2qr_autoconv_tend+qc2qr_accret_tend+qc2qi_collect_tend+qc2qi_immers_freeze_tend+qc2qr_ice_shed_tend+qc2qi_berg_tend)*dt; // Sinks of cloud water
   }
   const auto sources = qc; // Source of cloud water
   // il_cldm is the intersection of ice and liquid cloud fractions
@@ -48,7 +48,7 @@ void Functions<S,D>
          qicnt.set(enforce_conservation, qicnt*ratio);
     }
     else{
-      qc2qi_hetero_freeze_tend.set(enforce_conservation, qc2qi_hetero_freeze_tend*ratio);
+      qc2qi_immers_freeze_tend.set(enforce_conservation, qc2qi_immers_freeze_tend*ratio);
     }
     qc2qr_ice_shed_tend.set(enforce_conservation, qc2qr_ice_shed_tend*ratio);
     qc2qi_berg_tend.set(enforce_conservation, qc2qi_berg_tend*ratio);
@@ -110,7 +110,7 @@ void Functions<S,D>
 ::ice_water_conservation(
   const Pack& qi,const Pack& qv2qi_vapdep_tend,const Pack& qv2qi_nucleat_tend,const Pack& qc2qi_berg_tend, 
   const Pack &qr2qi_collect_tend,const Pack &qc2qi_collect_tend,const Pack& qr2qi_immers_freeze_tend,
-  const Pack& qc2qi_hetero_freeze_tend,const Scalar dt, Pack &qinuc_cnt, Pack &qcheti_cnt, Pack &qicnt,
+  const Pack& qc2qi_immers_freeze_tend,const Scalar dt, Pack &qinuc_cnt, Pack &qcheti_cnt, Pack &qicnt,
   Pack& qi2qv_sublim_tend, Pack& qi2qr_melt_tend, const bool& use_hetfrz_classnuc,
   const Mask& context)
 {
@@ -123,7 +123,7 @@ void Functions<S,D>
   }
   else{
     sources = qi + (qv2qi_vapdep_tend+qv2qi_nucleat_tend+qr2qi_collect_tend+qc2qi_collect_tend
-                          + qr2qi_immers_freeze_tend+qc2qi_hetero_freeze_tend+qc2qi_berg_tend)*dt; // Sources of ice water
+                          + qr2qi_immers_freeze_tend+qc2qi_immers_freeze_tend+qc2qi_berg_tend)*dt; // Sources of ice water
   }
   Pack ratio;
   constexpr Scalar qtendsmall = C::QTENDSMALL;
