@@ -611,7 +611,7 @@ template <typename ScalarT, typename DeviceT> struct Functions {
   KOKKOS_FUNCTION
   static void homogeneous_freezing(const uview_1d<const Pack> &T_atm,
                                    const uview_1d<const Pack> &inv_exner, const MemberType &team,
-                                   const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const Scalar &inv_dt
+                                   const Int &nk, const Int &ktop, const Int &kbot, const Int &kdir, const Scalar &inv_dt,
                                    const uview_1d<Pack> &qc, const uview_1d<Pack> &nc,
                                    const uview_1d<Pack> &qr, const uview_1d<Pack> &nr,
                                    const uview_1d<Pack> &qi, const uview_1d<Pack> &ni,
@@ -708,11 +708,11 @@ template <typename ScalarT, typename DeviceT> struct Functions {
 
   // LP05 homogeneous sulfate freezing, immersion freezing, and meyers deposition freezing
   KOKKOS_FUNCTION
-  static void nucleate_ice_lp05(const Spack& T_atm, const Spack& pres,
-    const Spack& qv, const Spack& omega, const Spack& rho, const Spack& inv_qc_relvar,
-    Spack& nc2ni_nihf, Spack& nc2ni_niimm, Spack& nc2ni_nidep, Spack& nc2ni_nimey,
+  static void nucleate_ice_lp05(const Pack& T_atm, const Pack& pres,
+    const Pack& qv, const Pack& omega, const Pack& rho, const Pack& inv_qc_relvar,
+    Pack& nc2ni_nihf, Pack& nc2ni_niimm, Pack& nc2ni_nidep, Pack& nc2ni_nimey,
     const P3Runtime& runtime_options,
-    const Smask& context = Smask(true) );
+    const Mask& context = Mask(true) );
 
   // Computes the immersion freezing of rain
   KOKKOS_FUNCTION
@@ -1310,7 +1310,5 @@ constexpr ScalarT Functions<ScalarT, DeviceT>::P3C::lookup_table_1a_dum1_c;
 #include "p3_update_prognostics_impl.hpp"
 #include "p3_upwind_impl.hpp"
 #include "p3_nucleate_ice_lp05.hpp"
-#if defined(EAMXX_ENABLE_GPU) && !defined(KOKKOS_ENABLE_CUDA_RELOCATABLE_DEVICE_CODE) \
-                                && !defined(KOKKOS_ENABLE_HIP_RELOCATABLE_DEVICE_CODE)
 #endif // GPU && !KOKKOS_ENABLE_*_RELOCATABLE_DEVICE_CODE
 #endif // P3_FUNCTIONS_HPP

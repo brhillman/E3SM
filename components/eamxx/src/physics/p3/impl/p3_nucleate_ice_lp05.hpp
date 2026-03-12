@@ -5,7 +5,7 @@
 #include "p3_subgrid_variance_scaling_impl.hpp"
 #include "mam4xx/nucleate_ice.hpp"
 #include "mam4xx/wv_sat_methods.hpp"
-#include "share/util/eamxx_common_physics_functions.hpp"
+#include "share/physics/eamxx_common_physics_functions.hpp"
 
 namespace scream {
 namespace p3 {
@@ -22,24 +22,24 @@ KOKKOS_FUNCTION
 void Functions<S,D>
 ::nucleate_ice_lp05(
   // Inputs (what we need to call nucleati)
-  const Spack& T_atm, const Spack& P_atm,
-  const Spack& qv_atm, const Spack& omega_atm,
-  const Spack& qc_incld, const Spack& rhoair_atm,
+  const Pack& T_atm, const Pack& P_atm,
+  const Pack& qv_atm, const Pack& omega_atm,
+  const Pack& qc_incld, const Pack& rhoair_atm,
   // Output tendencies
-  Spack& nihf, Spack& niimm, Spack& nidep, Spack& nimey,
+  Pack& nihf, Pack& niimm, Pack& nidep, Pack& nimey,
   const P3Runtime& runtime_options,
-  const Smask& context)
+  const Mask& context)
 {
   constexpr Scalar qsmall   = C::QSMALL;
-  constexpr Scalar T_rainfrz = C::T_rainfrz;
-  constexpr Scalar T_zerodegc = C::T_zerodegc;
+  constexpr Scalar T_rainfrz = C::T_rainfrz.value;
+  constexpr Scalar T_zerodegc = C::T_zerodegc.value;
   constexpr Scalar CONS5    = C::CONS5;
   constexpr Scalar CONS6    = C::CONS6;
   const Scalar immersion_freezing_exponent =
       runtime_options.immersion_freezing_exponent;
 
   auto updraft_w_atm = PF::calculate_vertical_velocity(omega_atm, rhoair_atm);
-  for (int p = 0; p < Spack::n; ++p) {
+  for (int p = 0; p < Pack::n; ++p) {
       Real tair = T_atm[p];
       Real pmid = P_atm[p];
       Real qv_scalar = qv_atm[p];
