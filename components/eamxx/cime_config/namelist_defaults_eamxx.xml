@@ -667,6 +667,9 @@ be lost if SCREAM_HACK_XML is not enabled.
       <rad_frequency hgrid="ne0np4_CAx32v1">3</rad_frequency>
       <rad_frequency COMPSET=".*DP-EAMxx">3</rad_frequency>
       <rad_frequency hgrid="ne0np4_conus_x4v1_lowcon">4</rad_frequency>
+      <rad_frequency hgrid="ne0np4_conus1024x2v1">4</rad_frequency>
+      <rad_frequency hgrid="ne0np4_conus1024x3v1">4</rad_frequency>
+      <rad_frequency hgrid="ne0np4_conus1024x4v1">4</rad_frequency>
       <do_aerosol_rad type="logical" doc="Flag to turn on/off considering aerosols in radiation calculations">true</do_aerosol_rad>
       <do_aerosol_rad COMPSET=".*SCREAM.*noAero">false</do_aerosol_rad>
       <enable_column_conservation_checks type="logical">false</enable_column_conservation_checks>
@@ -705,6 +708,9 @@ be lost if SCREAM_HACK_XML is not enabled.
       <number_of_subcycles hgrid="ne512np4">2</number_of_subcycles>
       <number_of_subcycles hgrid="ne1024np4">1</number_of_subcycles>
       <number_of_subcycles hgrid="ne0np4_CAx32v1">1</number_of_subcycles>
+      <number_of_subcycles hgrid="ne0np4_conus1024x2v1">1</number_of_subcycles>
+      <number_of_subcycles hgrid="ne0np4_conus1024x3v1">1</number_of_subcycles>
+      <number_of_subcycles hgrid="ne0np4_conus1024x4v1">1</number_of_subcycles>
       <number_of_subcycles COMPSET=".*DP-EAMxx">1</number_of_subcycles>
       <number_of_subcycles hgrid="ne0np4_conus_x4v1_lowcon">5</number_of_subcycles>
     </mac_aero_mic>
@@ -791,6 +797,9 @@ be lost if SCREAM_HACK_XML is not enabled.
     <!-- RRM grids -->
     <filename hgrid="ne0np4_conus_x4v1_lowcon" vgrid="L72"   >${DIN_LOC_ROOT}/atm/scream/init/screami_conusx4v1np4L72-topo12x_20260813.nc</filename>
     <filename hgrid="ne0np4_CAx32v1"           vgrid="L128v1">${DIN_LOC_ROOT}/atm/scream/init/screami_CAx32v1np4L128_hiccup-era5-20150101_20260813.ncpdq.nc</filename>
+    <filename hgrid="ne0np4_conus1024x2v1" vgrid="L128v4">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_init/atm_era5_hrrr.ne1024x2.2020-01-20.00.L128_c20260423.nc</filename>
+    <filename hgrid="ne0np4_conus1024x3v1" vgrid="L128v4">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_init/atm_era5_hrrr.ne1024x3.2020-01-20.00.L128_c20260423.nc</filename>
+    <filename hgrid="ne0np4_conus1024x4v1" vgrid="L128v4">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_init/atm_era5_hrrr.ne1024x4.2020-01-20.00.L128_c20260423.nc</filename>
 
     <!-- List of default topography files on specific grids -->
     <topography_filename type="file">UNSET</topography_filename>
@@ -811,6 +820,9 @@ be lost if SCREAM_HACK_XML is not enabled.
     <topography_filename COMPSET=".*SCREAM%AQUA.*">UNSET</topography_filename>
     <!-- CA RRM grid -->
     <topography_filename hgrid="ne0np4_CAx32v1">${DIN_LOC_ROOT}/atm/cam/topo/USGS-gtopo30_CA_ne32_x32_v1_pg2_16xdel2.nc</topography_filename>
+    <topography_filename hgrid="ne0np4_conus1024x2v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_topo/USGS-topo_2026-incite-conus-1024x2-np4_smoothedx6t_20251121.nc</topography_filename>
+    <topography_filename hgrid="ne0np4_conus1024x3v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_topo/USGS-topo_2026-incite-conus-1024x3-np4_smoothedx6t_20251121.nc</topography_filename>
+    <topography_filename hgrid="ne0np4_conus1024x4v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_topo/USGS-topo_2026-incite-conus-1024x4-np4_smoothedx6t_20251121.nc</topography_filename>
 
     <!-- Constants used to initialize fields. Fields can be inited to a constant in two ways (both are optional):
            - overrides: the field is ALWAYS set to the constant, even if it is in the IC file
@@ -1068,6 +1080,9 @@ be lost if SCREAM_HACK_XML is not enabled.
     <se_ne hgrid="ne512np4" constraints="ge 2">512</se_ne>
     <se_ne hgrid="ne1024np4" constraints="ge 2">1024</se_ne>
     <se_ne hgrid="ne0np4_CAx32v1">0</se_ne>
+    <se_ne hgrid="ne0np4_conus1024x2v1">0</se_ne>
+    <se_ne hgrid="ne0np4_conus1024x3v1">0</se_ne>
+    <se_ne hgrid="ne0np4_conus1024x4v1">0</se_ne>
     <se_ne COMPSET=".*DP-EAMxx">1024</se_ne>
     <se_ne hgrid="ne0np4_conus_x4v1_lowcon">0</se_ne>
     <se_ne_x>0</se_ne_x>
@@ -1095,6 +1110,9 @@ be lost if SCREAM_HACK_XML is not enabled.
     <se_tstep hgrid="ne0np4_CAx32v1">8.3333333333333</se_tstep>
     <se_tstep COMPSET=".*DP-EAMxx">8.3333333333333</se_tstep>
     <se_tstep hgrid="ne0np4_conus_x4v1_lowcon">75</se_tstep>
+    <se_tstep hgrid="ne0np4_conus1024x2v1">1.875</se_tstep>
+    <se_tstep hgrid="ne0np4_conus1024x3v1">0.9375</se_tstep>
+    <se_tstep hgrid="ne0np4_conus1024x4v1">0.46875</se_tstep>
     <statefreq>9999</statefreq>
     <theta_advect_form>1</theta_advect_form>
     <theta_advect_form COMPSET=".*SCREAM%BETA.*">2</theta_advect_form>
@@ -1131,6 +1149,9 @@ be lost if SCREAM_HACK_XML is not enabled.
     <mesh_file type="file">none</mesh_file>
     <mesh_file hgrid="ne0np4_conus_x4v1_lowcon">${DIN_LOC_ROOT}/atm/cam/inic/homme/conusx4v1.g</mesh_file>
     <mesh_file hgrid="ne0np4_CAx32v1">${DIN_LOC_ROOT}/atm/cam/inic/homme/CA_ne32_x32_v1.g</mesh_file>
+    <mesh_file hgrid="ne0np4_conus1024x2v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid/2026-incite-conus-1024x2.g</mesh_file>
+    <mesh_file hgrid="ne0np4_conus1024x3v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid/2026-incite-conus-1024x3.g</mesh_file>
+    <mesh_file hgrid="ne0np4_conus1024x4v1">/global/cfs/cdirs/e3sm/2026-INCITE-CONUS-RRM/files_grid/2026-incite-conus-1024x4.g</mesh_file>
     <!-- Settings related to 3D turbulence -->
     <do_3d_turbulence>false</do_3d_turbulence>
   </ctl_nl>
