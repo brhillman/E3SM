@@ -219,7 +219,7 @@ subroutine nucleate_ice_cam_init(mincld_in, bulk_scale_in)
       call addfld ('WEFF', (/ 'lev' /), 'A', 'm/s','Effective Vertical velocity for ice nucleation' )
       call addfld ('INnso4', (/ 'lev' /), 'A','1/m3','Number Concentation so4 used for ice_nucleation')
       call addfld ('INnbc', (/ 'lev' /), 'A','1/m3','Number Concentation bc  used for ice_nucleation')
-      call addfld ('INndust', (/ 'lev' /), 'A','1/m3','Number Concentation dustused for ice_nucleation')
+      call addfld ('INndust', (/ 'lev' /), 'A','1/m3','Number Concentration dust used for ice_nucleation')
       if (icenuc_dust_data_on) then
          call addfld ('INndxtr', (/ 'lev' /), 'A','1/m3','Injected dust number used for ice_nucleation')
       end if

@@ -920,9 +920,9 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
     end if
     call co2_diags_init(phys_state)
 
-     ! CAM3 prescribed ozone
-     if (cam3_ozone_data_on) call cam3_ozone_data_init(phys_state)
-     if (icenuc_dust_data_on) call icenuc_dust_data_init(phys_state)
+    ! CAM3 prescribed ozone
+    if (cam3_ozone_data_on) call cam3_ozone_data_init(phys_state)
+    if (icenuc_dust_data_on) call icenuc_dust_data_init(phys_state)
 
     call gw_init(pbuf2d)
 
