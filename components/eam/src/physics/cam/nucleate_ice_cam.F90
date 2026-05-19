@@ -29,6 +29,7 @@ use shr_spfn_mod,   only: erf => shr_spfn_erf
 #endif
 use cam_logfile,    only: iulog
 use cam_abortutils, only: endrun
+use icenuc_dust_data, only: icenuc_dust_data_on
 
 use nucleate_ice,   only: nucleati_init, nucleati
 
@@ -69,6 +70,7 @@ integer :: &
 integer :: &
    ast_idx   = -1, &
    dgnum_idx = -1
+integer :: icenuc_dust_num_idx = -1
 
 ! Bulk aerosols
 character(len=20), allocatable :: aername(:)
@@ -218,6 +220,9 @@ subroutine nucleate_ice_cam_init(mincld_in, bulk_scale_in)
       call addfld ('INnso4', (/ 'lev' /), 'A','1/m3','Number Concentation so4 used for ice_nucleation')
       call addfld ('INnbc', (/ 'lev' /), 'A','1/m3','Number Concentation bc  used for ice_nucleation')
       call addfld ('INndust', (/ 'lev' /), 'A','1/m3','Number Concentation dustused for ice_nucleation')
+      if (icenuc_dust_data_on) then
+         call addfld ('INndxtr', (/ 'lev' /), 'A','1/m3','Injected dust number used for ice_nucleation')
+      end if
       call addfld ('INhet', (/ 'lev' /), 'A','1/m3', &
                 'contribution for in-cloud ice number density increase by het nucleation in ice cloud')
       call addfld ('INhom', (/ 'lev' /), 'A','1/m3', &
@@ -234,6 +239,9 @@ subroutine nucleate_ice_cam_init(mincld_in, bulk_scale_in)
          call add_default ('INnso4  ', 1, ' ')
          call add_default ('INnbc   ', 1, ' ')
          call add_default ('INndust ', 1, ' ')
+         if (icenuc_dust_data_on) then
+            call add_default ('INndxtr ', 1, ' ')
+         end if
          call add_default ('INhet   ', 1, ' ')
          call add_default ('INhom   ', 1, ' ')
          call add_default ('INFrehom', 1, ' ')
@@ -500,6 +508,12 @@ subroutine nucleate_ice_cam_init(mincld_in, bulk_scale_in)
 
    ! get indices for fields in the physics buffer
    ast_idx      = pbuf_get_index('AST')
+   if (icenuc_dust_data_on) then
+      icenuc_dust_num_idx = pbuf_get_index('ICENUC_DUST_NUM')
+      if (icenuc_dust_num_idx < 1) then
+         call endrun(routine//': ERROR ICENUC_DUST_NUM field not found in physics buffer')
+      end if
+   end if
 
 end subroutine nucleate_ice_cam_init
 
@@ -552,6 +566,7 @@ subroutine nucleate_ice_cam_calc( &
    real(r8), pointer :: dgnum(:,:,:)    ! mode dry radius
 
    real(r8), pointer :: ast(:,:)
+   real(r8), pointer :: icenuc_dust_num(:,:)
    real(r8) :: icecldf(pcols,pver)  ! ice cloud fraction
 
    real(r8) :: rho(pcols,pver)      ! air density (kg m-3)
@@ -571,6 +586,7 @@ subroutine nucleate_ice_cam_calc( &
    real(r8) :: dst1_num,dst2_num,dst3_num,dst4_num   ! dust aerosol number (#/cm^3)
    real(r8) :: organic_num
    real(r8) :: dst_num                               ! total dust aerosol number (#/cm^3)
+   real(r8) :: dst_num_extra                         ! injected dust aerosol number (#/cm^3)
    real(r8) :: wght
    real(r8) :: dmc
    real(r8) :: ssmc
@@ -587,6 +603,7 @@ subroutine nucleate_ice_cam_calc( &
    real(r8) :: INnso4(pcols,pver)   ! #/m3, so4 aerosol number used for ice nucleation
    real(r8) :: INnbc(pcols,pver)    ! #/m3, bc aerosol number used for ice nucleation
    real(r8) :: INndust(pcols,pver)  ! #/m3, dust aerosol number used for ice nucleation
+   real(r8) :: INndxtr(pcols,pver)  ! #/m3, injected dust aerosol number used for ice nucleation
    real(r8) :: INhet(pcols,pver)    ! #/m3, ice number from het freezing
    real(r8) :: INhom(pcols,pver)    ! #/m3, ice number from hom freezing
    real(r8) :: INFrehom(pcols,pver) !  hom freezing occurence frequency.  1 occur, 0 not occur.
@@ -673,6 +690,9 @@ subroutine nucleate_ice_cam_calc( &
    if (clim_modal_aero) then
       call pbuf_get_field(pbuf, dgnum_idx, dgnum)
    end if
+   if (icenuc_dust_data_on) then
+      call pbuf_get_field(pbuf, icenuc_dust_num_idx, icenuc_dust_num)
+   end if
 
    ! naai and naai_hom are the outputs from this parameterization
    call pbuf_get_field(pbuf, naai_idx, naai)
@@ -708,6 +728,7 @@ subroutine nucleate_ice_cam_calc( &
       INnso4(:,:)   = 0.0_r8
       INnbc(:,:)    = 0.0_r8
       INndust(:,:)  = 0.0_r8
+      INndxtr(:,:)  = 0.0_r8
       INhet(:,:)    = 0.0_r8
       INhom(:,:)    = 0.0_r8
       INFrehom(:,:) = 0.0_r8
@@ -744,6 +765,7 @@ subroutine nucleate_ice_cam_calc( &
             dst3_num = 0._r8
             dst4_num = 0._r8
             dst_num  = 0._r8
+            dst_num_extra = 0._r8
 
             if (clim_modal_aero) then
                !For modal aerosols, assume for the upper troposphere:
@@ -841,9 +863,14 @@ subroutine nucleate_ice_cam_calc( &
                end if
                dst_num = dst1_num + dst2_num + dst3_num + dst4_num
 
-            end if
+             end if
 
-            ! *** Turn off soot nucleation ***
+             if (icenuc_dust_data_on) then
+                dst_num_extra = max(0._r8, icenuc_dust_num(i,k)*1.0e-6_r8)
+                dst_num = dst_num + dst_num_extra
+             end if
+
+             ! *** Turn off soot nucleation ***
             soot_num = 0.0_r8
             organic_num = 0.0_r8
 
@@ -870,6 +897,7 @@ subroutine nucleate_ice_cam_calc( &
                INnso4(i,k) =so4_num*1e6_r8  ! (convert from #/cm3 -> #/m3)
                INnbc(i,k)  =soot_num*1e6_r8
                INndust(i,k)=dst_num*1e6_r8
+               INndxtr(i,k)=dst_num_extra*1e6_r8
                INFreIN(i,k)=1.0_r8          ! 1,ice nucleation occur
                INhet(i,k) = niimm(i,k) + nidep(i,k)   ! #/m3, nimey not in cirrus
                INhom(i,k) = nihf(i,k)                 ! #/m3
@@ -882,6 +910,7 @@ subroutine nucleate_ice_cam_calc( &
                   INnso4(i,k) =0.0_r8
                   INnbc(i,k)  =0.0_r8
                   INndust(i,k)=0.0_r8
+                  INndxtr(i,k)=0.0_r8
                   INFreIN(i,k)=0.0_r8
                   INhet(i,k) = 0.0_r8
                   INhom(i,k) = 0.0_r8
@@ -916,6 +945,9 @@ subroutine nucleate_ice_cam_calc( &
       call outfld('INnso4  ',INnso4 , pcols,lchnk)
       call outfld('INnbc   ',INnbc  , pcols,lchnk)
       call outfld('INndust ',INndust, pcols,lchnk)
+      if (icenuc_dust_data_on) then
+         call outfld('INndxtr ',INndxtr, pcols,lchnk)
+      end if
       call outfld('INhet   ',INhet  , pcols,lchnk)
       call outfld('INhom   ',INhom  , pcols,lchnk)
       call outfld('INFrehom',INFrehom,pcols,lchnk)
