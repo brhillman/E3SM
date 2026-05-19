@@ -414,6 +414,7 @@ void Functions<S,D>
     }
 
     // deposition/condensation-freezing nucleation
+    // NOTE: ni_activated is an input, and should represent the ice activated via aerosol processes
     if(do_ice_production) {
       ice_nucleation(T_atm(k), inv_rho(k), ni(k), ni_activated(k),
                      qv_supersat_i(k), inv_dt, predictNc, do_prescribed_CCN,

@@ -52,6 +52,7 @@ void Functions<S,D>
 
        qv2qi_nucleat_tend.set(any_if_not_log && n_nuc_ge_nsmall, Q_nuc);
 
+       // NOTE: need to add ni_activated to this I think
        ni_nucleat_tend.set(any_if_not_log && n_nuc_ge_nsmall, N_nuc);
      }
    }
