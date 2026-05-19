@@ -28,7 +28,7 @@ public :: &
 
 logical, public    :: icenuc_dust_data_on = .false.
 character(len=256) :: bndtvi_dust_num = ' '
-real(r8)           :: icenuc_dust_num_max = 1.0e12_r8
+real(r8)           :: icenuc_dust_num_max = 1.0e12_r8 ! #/m3 sanity limit for prescribed input data
 
 integer :: icenuc_dust_num_idx = -1
 
@@ -161,7 +161,7 @@ subroutine icenuc_dust_data_get_num(state, q)
    do k = 1, pver
       do i = 1, state%ncol
          if (q(i,k) < 0._r8) then
-            if (q(i,k) > -1.e-12_r8) then
+            if (q(i,k) > -1.e-12_r8) then ! allow tiny negative roundoff after interpolation
                q(i,k) = 0._r8
             else
                write(iulog,*) subname//': negative ICENUC_DUST_NUM value at (i,k)=', i, k, q(i,k)

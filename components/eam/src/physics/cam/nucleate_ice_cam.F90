@@ -866,7 +866,7 @@ subroutine nucleate_ice_cam_calc( &
             end if
 
             if (icenuc_dust_data_on) then
-               dst_num_extra = max(0._r8, icenuc_dust_num(i,k)*1.0e-6_r8)
+               dst_num_extra = max(0._r8, icenuc_dust_num(i,k)*1.0e-6_r8) ! convert #/m3 -> #/cm3
                dst_num = dst_num + dst_num_extra
             end if
 
