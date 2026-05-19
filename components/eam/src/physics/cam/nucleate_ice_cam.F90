@@ -863,14 +863,14 @@ subroutine nucleate_ice_cam_calc( &
                end if
                dst_num = dst1_num + dst2_num + dst3_num + dst4_num
 
-             end if
+            end if
 
-             if (icenuc_dust_data_on) then
-                dst_num_extra = max(0._r8, icenuc_dust_num(i,k)*1.0e-6_r8)
-                dst_num = dst_num + dst_num_extra
-             end if
+            if (icenuc_dust_data_on) then
+               dst_num_extra = max(0._r8, icenuc_dust_num(i,k)*1.0e-6_r8)
+               dst_num = dst_num + dst_num_extra
+            end if
 
-             ! *** Turn off soot nucleation ***
+            ! *** Turn off soot nucleation ***
             soot_num = 0.0_r8
             organic_num = 0.0_r8
 
