@@ -7,9 +7,14 @@ module icenuc_dust_data
 !
 ! Expected input dataset:
 !  - netCDF variable named ICENUC_DUST_NUM
-!  - 12 monthly samples on a zonal grid with lon=1, lev=M, lat=N, time=12
-!  - required coordinate variables: lat(lat), lev(lev), date(time)
-!  - optional coordinate variable: datesec(time)
+!  - 12 monthly samples using either:
+!      * zonal layout: ICENUC_DUST_NUM(lon=1,lev,lat,time) with lat(lat), lev(lev)
+!      * full 3-D layout on the CAM physics grid: ICENUC_DUST_NUM(ncol,lev,time)
+!        with PS(ncol,time) and hybi(lev+1)
+!  - lon/lat files with lon>1 are not supported by this path; use ncol for full
+!    horizontal structure
+!  - required time variables: date(time)
+!  - optional time variable: datesec(time)
 !  - lev values are read as pressure levels in mb and converted internally
 !  - the first date entry must be in January and the last in December
 !-----------------------------------------------------------------------
@@ -159,7 +164,11 @@ subroutine icenuc_dust_data_get_num(state, q)
    dust_num_in = 0._r8
    do k = 1, icenuc_dust_num_data%levsiz
       do i = 1, state%ncol
-         dust_num_in(i,k) = icenuc_dust_num_data%datainst(state%latmapback(i),k,lchnk,1)
+         if (icenuc_dust_num_data%isncol) then
+            dust_num_in(i,k) = icenuc_dust_num_data%datainst(i,k,lchnk,1)
+         else
+            dust_num_in(i,k) = icenuc_dust_num_data%datainst(state%latmapback(i),k,lchnk,1)
+         end if
       end do
    end do
 
