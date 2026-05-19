@@ -4,6 +4,14 @@ module icenuc_dust_data
 ! Purpose:
 ! Optional prescribed 3-D number concentration field for additional dust
 ! used only by ice nucleation pathways.
+!
+! Expected input dataset:
+!  - netCDF variable named ICENUC_DUST_NUM
+!  - 12 monthly samples on a zonal grid with lon=1, lev=M, lat=N, time=12
+!  - required coordinate variables: lat(lat), lev(lev), date(time)
+!  - optional coordinate variable: datesec(time)
+!  - lev values are read as pressure levels in mb and converted internally
+!  - the first date entry must be in January and the last in December
 !-----------------------------------------------------------------------
 
 use shr_kind_mod,   only: r8 => shr_kind_r8
