@@ -3230,6 +3230,7 @@ subroutine phys_timestep_init(phys_state, cam_out, pbuf2d)
   use prescribed_ozone,    only: prescribed_ozone_adv
   use prescribed_ghg,      only: prescribed_ghg_adv
   use prescribed_aero,     only: prescribed_aero_adv
+  use nucleate_ice_cam,    only: nucleate_ice_cam_timestep_init
   use read_spa_data,       only: read_spa_data_adv
   use aerodep_flx,         only: aerodep_flx_adv
   use aircraft_emit,       only: aircraft_emit_adv
@@ -3263,6 +3264,7 @@ subroutine phys_timestep_init(phys_state, cam_out, pbuf2d)
   call prescribed_ozone_adv(phys_state, pbuf2d)
   call prescribed_ghg_adv(phys_state, pbuf2d)
   call prescribed_aero_adv(phys_state, pbuf2d)
+  call nucleate_ice_cam_timestep_init(phys_state, pbuf2d)
   call read_spa_data_adv(phys_state, pbuf2d)
   call aircraft_emit_adv(phys_state, pbuf2d)
 

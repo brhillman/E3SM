@@ -31,6 +31,8 @@ use cam_logfile,    only: iulog
 use cam_abortutils, only: endrun
 
 use nucleate_ice,   only: nucleati_init, nucleati
+use icenuc_dust_data, only: icenuc_dust_data_readnl, icenuc_dust_data_init, &
+                            icenuc_dust_data_advance, get_icenuc_dust_data
 
 
 implicit none
@@ -41,6 +43,7 @@ public :: &
    nucleate_ice_cam_readnl,   &
    nucleate_ice_cam_register, &
    nucleate_ice_cam_init,     &
+   nucleate_ice_cam_timestep_init, &
    nucleate_ice_cam_calc
    
 
@@ -173,6 +176,8 @@ subroutine nucleate_ice_cam_readnl(nlfile)
   call mpibcast(so4_sz_thresh_icenuc, 1, mpir8, 0, mpicom)
 #endif
 
+  call icenuc_dust_data_readnl(nlfile)
+
 end subroutine nucleate_ice_cam_readnl
 
 !================================================================================================
@@ -201,6 +206,8 @@ subroutine nucleate_ice_cam_init(mincld_in, bulk_scale_in)
 
    mincld     = mincld_in
    bulk_scale = bulk_scale_in
+
+   call icenuc_dust_data_init()
 
    call cnst_get_ind('CLDLIQ', cldliq_idx)
    call cnst_get_ind('CLDICE', cldice_idx)
@@ -505,6 +512,20 @@ end subroutine nucleate_ice_cam_init
 
 !================================================================================================
 
+subroutine nucleate_ice_cam_timestep_init(phys_state, pbuf2d)
+
+   use ppgrid,         only : begchunk, endchunk
+   use physics_buffer, only : physics_buffer_desc
+
+   type(physics_state), intent(in) :: phys_state(begchunk:endchunk)
+   type(physics_buffer_desc), pointer :: pbuf2d(:,:)
+
+   call icenuc_dust_data_advance(phys_state)
+
+end subroutine nucleate_ice_cam_timestep_init
+
+!================================================================================================
+
 subroutine nucleate_ice_cam_calc( &
    state, wsubi, pbuf)
 
@@ -565,6 +586,7 @@ subroutine nucleate_ice_cam_calc( &
 
    real(r8) :: relhum(pcols,pver)  ! relative humidity
    real(r8) :: icldm(pcols,pver)   ! ice cloud fraction
+   real(r8) :: extra_dst_num(pcols,pver) ! prescribed extra dust number (#/cm^3)
 
    real(r8) :: so4_num                               ! so4 aerosol number (#/cm^3)
    real(r8) :: soot_num                              ! soot (hydrophilic) aerosol number (#/cm^3)
@@ -614,6 +636,8 @@ subroutine nucleate_ice_cam_calc( &
    qi    => state%q(:,:,cldice_idx)
    ni    => state%q(:,:,numice_idx)
    pmid  => state%pmid
+
+   call get_icenuc_dust_data(lchnk, ncol, pbuf, extra_dst_num)
 
    do k = top_lev, pver
       do i = 1, ncol
@@ -836,12 +860,14 @@ subroutine nucleate_ice_cam_calc( &
                if (idxdst3 > 0) then 
                   dst3_num = naer2(i,k,idxdst3)/25._r8 *1.0e-6_r8
                end if
-               if (idxdst4 > 0) then 
+               if (idxdst4 > 0) then
                   dst4_num = naer2(i,k,idxdst4)/25._r8 *1.0e-6_r8
                end if
                dst_num = dst1_num + dst2_num + dst3_num + dst4_num
 
             end if
+
+            dst_num = dst_num + max(0._r8, extra_dst_num(i,k))
 
             ! *** Turn off soot nucleation ***
             soot_num = 0.0_r8
