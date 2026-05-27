@@ -149,6 +149,7 @@ subroutine phys_register
     use check_energy,       only: check_energy_register
     use cam3_aero_data,     only: cam3_aero_data_on, cam3_aero_data_register
     use cam3_ozone_data,    only: cam3_ozone_data_on, cam3_ozone_data_register
+    use icenuc_dust_data,   only: icenuc_dust_data_on, icenuc_dust_data_register
     use ghg_data,           only: ghg_data_register
     use vertical_diffusion, only: vd_register
     use convect_deep,       only: convect_deep_register
@@ -324,6 +325,9 @@ subroutine phys_register
        ! register data model ozone with pbuf
        if (cam3_ozone_data_on) then
           call cam3_ozone_data_register()
+       end if
+       if (icenuc_dust_data_on) then
+          call icenuc_dust_data_register()
        end if
        call prescribed_volcaero_register()
        call prescribed_ozone_register()
@@ -756,6 +760,7 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
     use gw_drag,            only: gw_init
     use cam3_aero_data,     only: cam3_aero_data_on, cam3_aero_data_init
     use cam3_ozone_data,    only: cam3_ozone_data_on, cam3_ozone_data_init
+    use icenuc_dust_data,   only: icenuc_dust_data_on, icenuc_dust_data_init
     use radheat,            only: radheat_init
     use radiation,          only: radiation_init
     use cloud_diagnostics,  only: cloud_diagnostics_init
@@ -917,6 +922,7 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
 
     ! CAM3 prescribed ozone
     if (cam3_ozone_data_on) call cam3_ozone_data_init(phys_state)
+    if (icenuc_dust_data_on) call icenuc_dust_data_init(phys_state)
 
     call gw_init(pbuf2d)
 
@@ -3216,6 +3222,7 @@ subroutine phys_timestep_init(phys_state, cam_out, pbuf2d)
   use ghg_data,            only: ghg_data_timestep_init
   use cam3_aero_data,      only: cam3_aero_data_on, cam3_aero_data_timestep_init
   use cam3_ozone_data,     only: cam3_ozone_data_on, cam3_ozone_data_timestep_init
+  use icenuc_dust_data,    only: icenuc_dust_data_on, icenuc_dust_data_timestep_init
   use radiation,           only: radiation_do
   use tracers,             only: tracers_timestep_init
   use aoa_tracers,         only: aoa_tracers_timestep_init
@@ -3289,6 +3296,7 @@ subroutine phys_timestep_init(phys_state, cam_out, pbuf2d)
 
   ! CAM3 prescribed ozone data
   if (cam3_ozone_data_on) call cam3_ozone_data_timestep_init(pbuf2d,  phys_state)
+  if (icenuc_dust_data_on) call icenuc_dust_data_timestep_init(pbuf2d,  phys_state)
 
   ! Time interpolate data models of gasses in pbuf2d
   call ghg_data_timestep_init(pbuf2d,  phys_state)
