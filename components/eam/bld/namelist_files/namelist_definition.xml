@@ -2819,6 +2819,36 @@ ice nucleation SO2 size threshold for aitken mode
 Default: set by build-namelist
 </entry>
 
+<entry id="icenuc_dust_data_on" type="logical" category="microphys"
+       group="icenuc_dust_data_nl" valid_values="" >
+Turn on prescribed dust number concentrations for ice nucleation.
+Default: .false.
+</entry>
+
+<entry id="icenuc_dust_filename" type="char*256" input_pathname="abs" category="microphys"
+       group="icenuc_dust_data_nl" valid_values="" >
+Full pathname of prescribed dust number concentration dataset for ice nucleation.
+Default: set by build-namelist
+</entry>
+
+<entry id="icenuc_dust_type" type="char*32" category="microphys"
+       group="icenuc_dust_data_nl" valid_values="" >
+Time interpolation mode for prescribed ice nucleation dust data.
+Default: CYCLICAL
+</entry>
+
+<entry id="icenuc_dust_cycle_yr" type="integer" category="microphys"
+       group="icenuc_dust_data_nl" valid_values="" >
+Cycle year for prescribed ice nucleation dust data.
+Default: 0
+</entry>
+
+<entry id="icenuc_dust_varname" type="char*32" category="microphys"
+       group="icenuc_dust_data_nl" valid_values="" >
+Variable name in the prescribed ice nucleation dust dataset.
+Default: dst_num
+</entry>
+
 <!-- hkconv Moist Convection -->
 <entry id="hkconv_cmftau" type="real" category="conv"
        group="hkconv_nl" valid_values="" >
