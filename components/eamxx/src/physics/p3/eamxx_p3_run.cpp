@@ -59,6 +59,8 @@ void P3Microphysics::run_impl (const double dt)
     get_field_out("nr2ni_homfrz").deep_copy(0.0);
     get_field_out("nc2ni_immers_freeze").deep_copy(0.0);
     get_field_out("nr2ni_immers_freeze").deep_copy(0.0);
+    get_field_out("ni_nucleat_tend").deep_copy(0.0);
+    get_field_out("qv2qi_nucleat_tend").deep_copy(0.0);
     get_field_out("nc2ni_nihf").deep_copy(0.0);
     get_field_out("nc2ni_niimm").deep_copy(0.0);
     get_field_out("nc2ni_nidep").deep_copy(0.0);
