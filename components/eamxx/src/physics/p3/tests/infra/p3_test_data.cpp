@@ -992,14 +992,16 @@ void p3_main_part2_host(
   const Real max_total_ni = 740.0e3;  // Hard-code this value for F90 comparison
 
   // Set up views
-  std::vector<view_1d> temp_d(P3MainPart2Data::NUM_ARRAYS);
+  std::vector<view_1d> temp_d(P3MainPart2Data::NUM_ARRAYS + 9);
   std::vector<Real> hetfrz_0(nk,0), hetfrz_1(nk,0), hetfrz_2(nk,0);
   hetfrz_immersion_nucleation_tend = hetfrz_0.data();
   hetfrz_contact_nucleation_tend = hetfrz_1.data();
   hetfrz_deposition_nucleation_tend = hetfrz_2.data();
   std::vector<Real> qr2qv_evap_v(nk,0), qi2qv_sublim_v(nk,0), qc2qr_accret_v(nk,0), qc2qr_autoconv_v(nk,0), qv2qi_vapdep_v(nk,0),
     qc2qi_berg_v(nk,0), qc2qr_ice_shed_v(nk,0), qc2qi_collect_v(nk,0), qr2qi_collect_v(nk,0), qc2qi_immers_freeze_v(nk,0),
-    qr2qi_immers_freeze_v(nk,0), qi2qr_melt_v(nk,0);
+    qr2qi_immers_freeze_v(nk,0), qi2qr_melt_v(nk,0), omega_v(nk,0), nc2ni_immers_freeze_v(nk,0),
+    nr2ni_immers_freeze_v(nk,0), ni_nucleat_tend_v(nk,0), qv2qi_nucleat_tend_v(nk,0),
+    nc2ni_nihf_v(nk,0), nc2ni_niimm_v(nk,0), nc2ni_nidep_v(nk,0), nc2ni_nimey_v(nk,0);
   qr2qv_evap = qr2qv_evap_v.data();
   qi2qv_sublim = qi2qv_sublim_v.data();
   qc2qr_accret = qc2qr_accret_v.data();
@@ -1019,10 +1021,12 @@ void p3_main_part2_host(
         qv, th_atm, qc, nc, qr, nr, qi, ni, qm, bm, qc_incld, qr_incld,
         qi_incld, qm_incld, nc_incld, nr_incld, ni_incld, bm_incld, mu_c, nu, lamc, cdist, cdist1,
         cdistr, mu_r, lamr, logn0r, qv2qi_depos_tend, precip_total_tend, nevapr, qr_evap_tend, vap_liq_exchange,
-        vap_ice_exchange, liq_ice_exchange, pratot, prctot, qv_prev, t_prev,
+        vap_ice_exchange, liq_ice_exchange, pratot, prctot, qv_prev, t_prev, omega_v.data(),
         qr2qv_evap, qi2qv_sublim, qc2qr_accret, qc2qr_autoconv,
         qv2qi_vapdep, qc2qi_berg, qc2qr_ice_shed, qc2qi_collect, qr2qi_collect,
-        qc2qi_immers_freeze, qr2qi_immers_freeze, qi2qr_melt
+        qc2qi_immers_freeze, qr2qi_immers_freeze, qi2qr_melt, nc2ni_immers_freeze_v.data(),
+        nr2ni_immers_freeze_v.data(), ni_nucleat_tend_v.data(), qv2qi_nucleat_tend_v.data(),
+        nc2ni_nihf_v.data(), nc2ni_niimm_v.data(), nc2ni_nidep_v.data(), nc2ni_nimey_v.data()
         },
     nk, temp_d);
 
@@ -1092,6 +1096,7 @@ void p3_main_part2_host(
     prctot_d            (temp_d[current_index++]),
     qv_prev_d           (temp_d[current_index++]),
     t_prev_d            (temp_d[current_index++]),
+    omega_d             (temp_d[current_index++]),
     qr2qv_evap_d        (temp_d[current_index++]),
     qi2qv_sublim_d      (temp_d[current_index++]),
     qc2qr_accret_d      (temp_d[current_index++]),
@@ -1103,7 +1108,15 @@ void p3_main_part2_host(
     qr2qi_collect_d     (temp_d[current_index++]),
     qc2qi_immers_freeze_d (temp_d[current_index++]),
     qr2qi_immers_freeze_d (temp_d[current_index++]),
-    qi2qr_melt_d        (temp_d[current_index++]);
+    qi2qr_melt_d        (temp_d[current_index++]),
+    nc2ni_immers_freeze_d (temp_d[current_index++]),
+    nr2ni_immers_freeze_d (temp_d[current_index++]),
+    ni_nucleat_tend_d   (temp_d[current_index++]),
+    qv2qi_nucleat_tend_d (temp_d[current_index++]),
+    nc2ni_nihf_d        (temp_d[current_index++]),
+    nc2ni_niimm_d       (temp_d[current_index++]),
+    nc2ni_nidep_d       (temp_d[current_index++]),
+    nc2ni_nimey_d       (temp_d[current_index++]);
 
   // Call core function from kernel
   auto tables = P3F::p3_init();
@@ -1121,7 +1134,7 @@ void p3_main_part2_host(
       dnu, ice_table_vals, collect_table_vals, revap_table_vals,
       pres_d, dpres_d, dz_d, nc_nuceat_tend_d, inv_exner_d, exner_d, inv_cld_frac_l_d,
       inv_cld_frac_i_d, inv_cld_frac_r_d, ni_activated_d, inv_qc_relvar_d, cld_frac_i_d, cld_frac_l_d, cld_frac_r_d,
-      qv_prev_d, t_prev_d, t_d, rho_d, inv_rho_d, qv_sat_l_d, qv_sat_i_d, qv_supersat_i_d, rhofacr_d, rhofaci_d, acn_d,
+      qv_prev_d, t_prev_d, omega_d, t_d, rho_d, inv_rho_d, qv_sat_l_d, qv_sat_i_d, qv_supersat_i_d, rhofacr_d, rhofaci_d, acn_d,
       qv_d, th_atm_d, qc_d, nc_d, qr_d, nr_d, qi_d, ni_d, qm_d, bm_d,
       qc_incld_d, qr_incld_d, qi_incld_d,
       qm_incld_d, nc_incld_d, nr_incld_d, ni_incld_d, bm_incld_d,
@@ -1131,6 +1144,8 @@ void p3_main_part2_host(
       qc2qr_accret_d, qc2qr_autoconv_d, qv2qi_vapdep_d, qc2qi_berg_d,
       qc2qr_ice_shed_d, qc2qi_collect_d, qr2qi_collect_d,
       qc2qi_immers_freeze_d, qr2qi_immers_freeze_d, qi2qr_melt_d,
+      nc2ni_immers_freeze_d, nr2ni_immers_freeze_d, ni_nucleat_tend_d, qv2qi_nucleat_tend_d,
+      nc2ni_nihf_d, nc2ni_niimm_d, nc2ni_nidep_d, nc2ni_nimey_d,
       pratot_d, prctot_d, bools_d(0),nk, P3F::P3Runtime());
   });
 
