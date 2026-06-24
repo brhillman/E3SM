@@ -152,7 +152,7 @@ void P3Microphysics::create_requests()
     add_field<Computed>("nc2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
     add_field<Computed>("nr2ni_immers_freeze", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
     add_field<Computed>("ni_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
-    add_field<Computed>("qv2qi_nucleat_tend", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
+    add_field<Computed>("qv2qi_nucleat_tend", scalar3d_layout_mid, kg/kg/s,  grid_name, ps);
     add_field<Computed>("nc2ni_nihf", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
     add_field<Computed>("nc2ni_niimm", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
     add_field<Computed>("nc2ni_nidep", scalar3d_layout_mid, 1/kg/s,  grid_name, ps);
