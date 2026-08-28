@@ -234,6 +234,7 @@ contains
    use ref_pres,            only: ref_pres_readnl
    use cam3_aero_data,      only: cam3_aero_data_readnl
    use cam3_ozone_data,     only: cam3_ozone_data_readnl
+   use icenuc_dust_data,    only: icenuc_dust_data_readnl
    use macrop_driver,       only: macrop_driver_readnl
    use microp_driver,       only: microp_driver_readnl
    use microp_aero,         only: microp_aero_readnl
@@ -503,6 +504,7 @@ contains
    call ref_pres_readnl(nlfilename)
    call cam3_aero_data_readnl(nlfilename)
    call cam3_ozone_data_readnl(nlfilename)
+   call icenuc_dust_data_readnl(nlfilename)
    call macrop_driver_readnl(nlfilename)
    call microp_driver_readnl(nlfilename)
    call microp_aero_readnl(nlfilename)
