@@ -655,6 +655,7 @@ be lost if SCREAM_HACK_XML is not enabled.
       <fixed_total_solar_irradiance>-9999.0</fixed_total_solar_irradiance>
       <fixed_total_solar_irradiance COMPSET=".*SCREAM%RCE.*">551.58</fixed_total_solar_irradiance>
 
+      <rad_frequency>1</rad_frequency>
       <rad_frequency hgrid="ne4np4">1</rad_frequency>
       <rad_frequency hgrid="ne30np4">2</rad_frequency>
       <rad_frequency hgrid="ne32np4">2</rad_frequency>
@@ -667,9 +668,6 @@ be lost if SCREAM_HACK_XML is not enabled.
       <rad_frequency hgrid="ne0np4_CAx32v1">3</rad_frequency>
       <rad_frequency COMPSET=".*DP-EAMxx">3</rad_frequency>
       <rad_frequency hgrid="ne0np4_conus_x4v1_lowcon">4</rad_frequency>
-      <rad_frequency hgrid="ne0np4_conus1024x2v1">4</rad_frequency>
-      <rad_frequency hgrid="ne0np4_conus1024x3v1">4</rad_frequency>
-      <rad_frequency hgrid="ne0np4_conus1024x4v1">4</rad_frequency>
       <do_aerosol_rad type="logical" doc="Flag to turn on/off considering aerosols in radiation calculations">true</do_aerosol_rad>
       <do_aerosol_rad COMPSET=".*SCREAM.*noAero">false</do_aerosol_rad>
       <enable_column_conservation_checks type="logical">false</enable_column_conservation_checks>
