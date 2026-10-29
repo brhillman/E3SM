@@ -60,9 +60,18 @@ More information about grids may be found on this [Confluence Page](https://acme
 
 ### Common EAMxx Compsets
 
+- `F2010-GCM`: traditional global climate model physics
+- `F2010-MES`: mesoscale-resolving physics
+- `F2010-CGZ`: convective grey-zone physics
+- `F2010-LES`: large-eddy simulation physics
 - `F2010-SCREAMv1`: V1 standard compset with EAMxx V1 atmosphere
 - `FIOP-SCREAMv1-DP`: V1 with `dpxx`[^dpxx]
 - `F2010-SCREAMv1-noAero`: V1 without aerosol forcing
+
+The physics-oriented `F2010-*` compsets select model physics independently of
+the horizontal grid. This allows the same physics configuration to be tested
+on a less expensive grid. Grid-dependent numerical settings, such as dynamics
+timesteps and hyperviscosity, continue to come from the selected grid.
 
 Full info on supported compsets may be found by taking a look at the EAMxx
 [`config_compsets.xml`](https://github.com/E3SM-Project/E3SM/blob/master/components/eamxx/cime_config/config_compsets.xml)

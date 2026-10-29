@@ -55,6 +55,31 @@
     <support_level>Experimental, under development</support_level>
   </compset>
 
+  <!-- Physics-package compsets. These select physics independently of horizontal resolution. -->
+  <compset>
+    <alias>F2010-GCM</alias> <!-- Traditional global climate model scales -->
+    <lname>2010_SCREAM%GCM_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP</lname>
+    <support_level>Experimental, under development</support_level>
+  </compset>
+
+  <compset>
+    <alias>F2010-MES</alias> <!-- Mesoscale-resolving configuration -->
+    <lname>2010_SCREAM%MES_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP</lname>
+    <support_level>Experimental, under development</support_level>
+  </compset>
+
+  <compset>
+    <alias>F2010-CGZ</alias> <!-- Convective grey-zone configuration -->
+    <lname>2010_SCREAM%CGZ_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP</lname>
+    <support_level>Experimental, under development</support_level>
+  </compset>
+
+  <compset>
+    <alias>F2010-LES</alias> <!-- Large-eddy simulation configuration -->
+    <lname>2010_SCREAM%LES_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP</lname>
+    <support_level>Experimental, under development</support_level>
+  </compset>
+
   <compset>
     <alias>F2010-SCREAMv1-DYAMOND1</alias> <!-- Coupled land-atm compset (using SCREAMv1), DYAMOND-1 initial conditions with X6T topography-->
     <lname>2010_SCREAM%DYAMOND-1_ELM%SPBC_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV_SIAC_SESP</lname>
