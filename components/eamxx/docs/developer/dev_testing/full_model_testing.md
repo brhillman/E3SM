@@ -60,10 +60,13 @@ More information about grids may be found on this [Confluence Page](https://acme
 
 ### Common EAMxx Compsets
 
-- `F2010-GCM`: traditional global climate model physics
-- `F2010-MES`: mesoscale-resolving physics
-- `F2010-CGZ`: convective grey-zone physics
-- `F2010-LES`: large-eddy simulation physics
+- `F2010-GCM`: traditional global climate model physics, including ZM deep
+  convection and gravity-wave drag
+- `F2010-MES`: mesoscale-resolving physics, including ZM deep convection and
+  gravity-wave drag
+- `F2010-CGZ`: convective grey-zone physics without ZM or gravity-wave drag
+- `F2010-LES`: large-eddy simulation physics with 3D turbulence, without ZM
+  or gravity-wave drag
 - `F2010-SCREAMv1`: V1 standard compset with EAMxx V1 atmosphere
 - `FIOP-SCREAMv1-DP`: V1 with `dpxx`[^dpxx]
 - `F2010-SCREAMv1-noAero`: V1 without aerosol forcing

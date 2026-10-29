@@ -170,6 +170,53 @@ class TestBuildnml(unittest.TestCase):
         self.assertEqual(new_atm_freq, new_rest_n)
 
     ###########################################################################
+    def test_physics_compsets(self):
+    ###########################################################################
+        """Test that physics packages are selected by compset."""
+        expected = {
+            "F2010-GCM": {
+                "physics::atm_procs_list": "zm,gw,mac_aero_mic,rrtmgp",
+                "mac_aero_mic::atm_procs_list": "tms,shoc,cld_fraction,spa,p3",
+                "p3::set_cld_frac_l_to_one": "false",
+                "p3::set_cld_frac_r_to_one": "false",
+                "p3::set_cld_frac_i_to_one": "false",
+                "do_3d_turbulence": "false",
+            },
+            "F2010-MES": {
+                "physics::atm_procs_list": "zm,gw,mac_aero_mic,rrtmgp",
+                "mac_aero_mic::atm_procs_list": "tms,shoc,cld_fraction,spa,p3",
+                "p3::set_cld_frac_l_to_one": "false",
+                "p3::set_cld_frac_r_to_one": "true",
+                "p3::set_cld_frac_i_to_one": "false",
+                "do_3d_turbulence": "false",
+            },
+            "F2010-CGZ": {
+                "physics::atm_procs_list": "mac_aero_mic,rrtmgp",
+                "mac_aero_mic::atm_procs_list": "shoc,cld_fraction,spa,p3",
+                "p3::set_cld_frac_l_to_one": "false",
+                "p3::set_cld_frac_r_to_one": "true",
+                "p3::set_cld_frac_i_to_one": "false",
+                "do_3d_turbulence": "false",
+            },
+            "F2010-LES": {
+                "physics::atm_procs_list": "mac_aero_mic,rrtmgp",
+                "mac_aero_mic::atm_procs_list": "shoc,cld_fraction,spa,p3",
+                "p3::set_cld_frac_l_to_one": "true",
+                "p3::set_cld_frac_r_to_one": "true",
+                "p3::set_cld_frac_i_to_one": "true",
+                "do_3d_turbulence": "true",
+            },
+        }
+
+        for compset, values in expected.items():
+            # Exercise every physics package on both a cheap development grid
+            # and a higher-resolution grid to ensure hgrid does not select it.
+            for grid in ("ne30pg2_ne30pg2", "ne256pg2_ne256pg2"):
+                case = self._create_test(f"SMS.{grid}.{compset} --no-build")
+                for name, value in values.items():
+                    self._get_values(case, name, value=value)
+
+    ###########################################################################
     def test_atmchanges_are_preserved(self):
     ###########################################################################
         """
