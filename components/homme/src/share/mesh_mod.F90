@@ -807,7 +807,7 @@ contains
 
   subroutine mesh_init_sfc_from_centroids(nelem, face_numbers, centroids, h, sfcidx)
     use spacecurve_mod, only : sfcmap_t, sfcmap_init, sfcmap_pos2i, sfcmap_finalize
-    use sort_mod, only : sortints
+    use sort_mod, only : sortints3
 
     integer, intent(in) :: nelem, face_numbers(nelem)
     real(kind=real_kind), intent(in) :: centroids(nelem,2), h
@@ -815,7 +815,7 @@ contains
     real(kind=real_kind), parameter :: pi = 3.141592653589793116d0
     integer, parameter :: nfaces = 6
     type (sfcmap_t) :: sfcmap
-    integer :: ne, ne2, i, face, i2, j2, pos(2), o, sfc, ne2sq
+    integer :: ne, ne2, i, face, i2, j2, pos(2), o, sfc
     real(kind=real_kind) :: x, y
     integer, allocatable :: inds(:,:)
 
@@ -823,10 +823,19 @@ contains
     ! find the smallest ne2 which is a power of 2 and ne2>ne. could instead use
     ! find_next_factorable for a smaller ne2.
     ne2 = 2**ceiling(log(real(ne))/log(2d0))
-    ne2sq = ne2*ne2
+    ! The curve index runs to ne2*ne2-1 in default integers, which overflows
+    ! for ne2 >= 2**16. ne = pi/h already gives curve cells, of width
+    ! (pi/2)/ne2, at most half the smallest element size h, so capping ne2 at
+    ! 2**15 still resolves elements down to h ~ 4.8e-5 rad (~0.3 km).
+    ! Elements that share a cell are ordered by element number below.
+    ne2 = min(ne2, 2**15)
 
     o = sfcmap_init(ne2, sfcmap)
-    allocate(inds(2,nelem))
+    ! Sort on (face, curve index, element). A combined key
+    ! ne2*ne2*(face-1) + sfc overflows default integers for ne2 >= 2**15 and
+    ! interleaves faces; the element number makes the order independent of
+    ! the qsort implementation when two elements share a curve cell.
+    allocate(inds(3,nelem))
     do i = 1, nelem
        face = face_numbers(i)
        x = centroids(i,1)
@@ -836,13 +845,14 @@ contains
        if (face == 4 .or. face == 6)                i2 = ne2-i2+1
        if (face == 1 .or. face == 2 .or. face == 6) j2 = ne2-j2+1
        pos = (/ i2, j2 /)
-       inds(2,i) = i
        o = sfcmap_pos2i(sfcmap, pos, sfc)
-       inds(1,i) = ne2*ne2*(face-1) + sfc
+       inds(1,i) = face
+       inds(2,i) = sfc
+       inds(3,i) = i
     end do
-    call sortints(inds)
+    call sortints3(inds)
     do i = 1, nelem
-       sfcidx(inds(2,i)) = i-1
+       sfcidx(inds(3,i)) = i-1
     end do
     deallocate(inds)
     call sfcmap_finalize(sfcmap)
