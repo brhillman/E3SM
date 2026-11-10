@@ -529,11 +529,12 @@ contains
      if (fv_nphys > 0 ) then
        ! create FV mesh, base on PGx
        atm_pg_active = .true. ! from now on, we will migrate / send tags for FV / ATM_PG2 mesh
-       ! first count the number of edges in the coarse mesh;
-       ! use euler: v-m+f = 2 => m = v + f - 2
-       nedges_c = nverts_c + nelemd - 1 ! could be more, if unconnected regions ?
-       nedges_c = nedges_c + 3 ! assume more than one connected region
-       if ( nedges_c < 0 ) nedges_c = 0 ! it cannot be negative
+       ! Upper bound on the number of distinct edges of the local coarse
+       ! elements: 4 per element. Euler's formula gives
+       ! edges = verts + elems - (connected pieces) + (holes), and a rank's
+       ! SFC partition can enclose several holes (elements owned by other
+       ! ranks), so a bound based on it overflows edge(:,:).
+       nedges_c = 4 * nelemd
        internal_edges = 0
        boundary_edges = 0
        reverse_edges = 0
